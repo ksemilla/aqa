@@ -286,3 +286,21 @@ aqa/media/
 .env
 .envs/*
 !.envs/.local/
+
+
+### CUSTOM
+
+**/.DS_Store
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+
+config/settings/local_settings.py
+
+.vscode
