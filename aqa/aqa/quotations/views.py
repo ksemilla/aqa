@@ -17,7 +17,9 @@ class QuotationSampleView(APIView):
         for quotation in quotations:
             lists.append(
                 {
-                    "author": quotation.author
+                    "id": quotation.id,
+                    "author": quotation.author,
+                    "expiry_date": quotation.expiry_date,
                 }
             )
 
@@ -43,11 +45,12 @@ class QuotationSampleView(APIView):
             return Response(context, status=400)
 
         created_quotation = Quotation.objects.create(
-            author=data["author"]
+            author=data["author"],
+            expiry_date = data["expiry_date"]
         )
 
         context = {
-            "sucess": f"Created quotation id {created_quotation.id} with author {created_quotation.author}"
+            "success": f"Created quotation id {created_quotation.id} with author {created_quotation.author}"
         }
 
         return Response(context, status=200)
@@ -55,13 +58,20 @@ class QuotationSampleView(APIView):
 
 class QuotationFetchUpdateDestroy(APIView):
     def get(self, request, pk):
-        quotation = Quotation.objects.get(pk=pk)
+
+        quotation = Quotation.objects.filter(pk=pk).first()
+
+        if not quotation:
+            context = {
+                "error": f"Primary Key {pk} does not exists",
+            }
+            return Response(context, status=400)
 
         context = {
             "id": quotation.id,
             "author": quotation.author
         }
-        
+
         print(context)
 
         return Response(context, status=200)
