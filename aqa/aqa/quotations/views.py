@@ -76,8 +76,32 @@ class QuotationFetchUpdateDestroy(APIView):
 
         return Response(context, status=200)
 
+    def put(self, request, pk):
+            data = copy.deepcopy(request.data)
+            quotation = Quotation.objects.filter(pk=pk).first()
+            
+            if not quotation:
+                context = {
+                    "error": f"Primary Key {pk} does not exists",
+                }
+                return Response(context, status=400)
+
+            quotation.author = data['author'] if 'author' in data else quotation.author
+            print(quotation.author)
+            quotation.expiry_date = data['expiry_date'] if 'expiry_date' in data else quotation.expiry_date
+            quotation.save()
+            return Response({"success": f"Saved {quotation.id}"}, status=200)
+
+
     def delete(self, request, pk):
-        quotation = Quotation.objects.get(pk=pk)
+        quotation = Quotation.objects.filter(pk=pk).first()
+        
+        if not quotation:
+            context = {
+                "error": f"Primary Key {pk} does not exists",
+            }
+            return Response(context, status=400)
+        temp_id = quotation.id
         quotation.delete()
 
-        return Response({"success": f"deleted {quotation.id}"})
+        return Response({"success": f"deleted quotatin id {temp_id}"})
