@@ -17,6 +17,7 @@ class QuotationSampleView(APIView):
         for quotation in quotations:
             lists.append(
                 {
+                    "client":quotation.company_name,
                     "id": quotation.id,
                     "author": quotation.author,
                     "expiry_date": quotation.expiry_date,
@@ -29,7 +30,8 @@ class QuotationSampleView(APIView):
         data = copy.deepcopy(request.data)
 
         created_quotation = Quotation.objects.create(
-            author=data["author"],
+            company_name=data["company_name"],
+            author=User.objects.filter(username=data["author"]).first(),
             expiry_date = data["expiry_date"]
         )
 
