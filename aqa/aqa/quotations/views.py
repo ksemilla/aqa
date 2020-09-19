@@ -28,22 +28,6 @@ class QuotationSampleView(APIView):
     def post(self, request):
         data = copy.deepcopy(request.data)
 
-        print(data)
-
-        # check is author already exists
-
-        data_to_check = Quotation.objects.filter(
-            author=data["author"]
-        )
-
-        if len(data_to_check) > 0:
-
-            context = {
-                "error": f"Author {data['author']} already exists"
-            }
-
-            return Response(context, status=400)
-
         created_quotation = Quotation.objects.create(
             author=data["author"],
             expiry_date = data["expiry_date"]
