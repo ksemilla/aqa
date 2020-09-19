@@ -75,7 +75,6 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "aqa.users.apps.UsersConfig",
-    # Your stuff: custom apps go here
     "aqa.quotations.apps.QuotationsConfig",
     "aqa.products.apps.ProductsConfig",
 ]
