@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils import timezone
-# Create your models here.
+from aqa.users.models import User
+
 
 class Quotation(models.Model):
     created = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    author = models.CharField(blank=True, null=True, max_length=256)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     expiry_date = models.CharField(blank=True, null=True, max_length=15)
-    
