@@ -18,10 +18,10 @@ class QuotationSampleView(APIView):
         for quotation in quotations:
             lists.append(
                 {
-                    "client":quotation.company_name,
-                    "id": quotation.id,
-                    "author": {"id": quotation.author.id, "username": quotation.author.username},
-                    "expiry_date": quotation.expiry_date,
+                    "Client":quotation.company_name,
+                    "Quotation Ref. No.": quotation.id,
+                    "Author": {"ID": quotation.author.id, "Username": quotation.author.username},
+                    "Expiry Date": quotation.expiry_date,
                 }
             )
 
@@ -59,10 +59,10 @@ class QuotationFetchUpdateDestroy(APIView):
             return Response(context, status=400)
 
         context = {
-            "client": quotation.company_name,
-            "id": quotation.id,
-            "author": {"id": quotation.author.id, "username": quotation.author.username},
-            "expiry_date": quotation.expiry_date,
+            "Client": quotation.company_name,
+            "Quotation Ref. No.": quotation.id,
+            "Author": {"ID": quotation.author.id, "Username": quotation.author.username},
+            "Expiry Date": quotation.expiry_date,
         }
 
         print(context)
