@@ -38,7 +38,7 @@ class QuotationSampleView(APIView):
         created_quotation = Quotation.objects.create(
             company_name=data["company_name"] if "company_name" in data else "",
             author=User.objects.filter(username=data["author"]).first(),
-            expiry_date = data["expiry_date"]
+            expiry_date = data["expiry_date"] if "expiry_date" in data else "",
         )
 
         context = {
