@@ -38,11 +38,10 @@ class QuotationSampleView(APIView):
         created_quotation = Quotation.objects.create(
             company_name=data["company_name"] if "company_name" in data else "",
             author=User.objects.filter(username=data["author"]).first(),
-            expiry_date = data["expiry_date"] if "expiry_date" in data else "",
         )
 
         context = {
-            "success": f"Created quotation id {created_quotation.id}"
+            "success": f"Created quotation id {created_quotation.id} for {created_quotation.company_name}"
         }
 
         return Response(context, status=200)
@@ -60,8 +59,10 @@ class QuotationFetchUpdateDestroy(APIView):
             return Response(context, status=400)
 
         context = {
+            "client": quotation.company_name,
             "id": quotation.id,
-            "author": quotation.author
+            "author": {"id": quotation.author.id, "username": quotation.author.username},
+            "expiry_date": quotation.expiry_date,
         }
 
         print(context)
@@ -78,12 +79,12 @@ class QuotationFetchUpdateDestroy(APIView):
                 }
                 return Response(context, status=400)
 
-            quotation.author = data['author'] if 'author' in data else quotation.author
+            quotation.author = User.objects.filter(username=data["author"]).first() if 'author' in data else quotation.author
             print(quotation.author)
             quotation.expiry_date = data['expiry_date'] if 'expiry_date' in data else quotation.expiry_date
+            quotation.company_name = data['company_name'] if 'company_name' in data else quotation.company_name
             quotation.save()
             return Response({"success": f"Saved {quotation.id}"}, status=200)
-
 
     def delete(self, request, pk):
         quotation = Quotation.objects.filter(pk=pk).first()

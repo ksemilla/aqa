@@ -12,6 +12,9 @@ class User(AbstractUser):
     name = CharField(_("Name of User"), blank=True, max_length=255)
     scope = CharField(max_length=16, default=UserScopes.USER, choices=USER_SCOPE_OPTIONS)
 
+    def __str__(self):
+        return self.username
+
     def get_absolute_url(self):
         """Get url for user's detail view.
 
