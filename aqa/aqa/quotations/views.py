@@ -6,6 +6,7 @@ from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIVie
 from rest_framework.response import Response
 from rest_framework import status
 
+from aqa.users.models import User
 from .models import Quotation
 
 class QuotationSampleView(APIView):
@@ -19,7 +20,7 @@ class QuotationSampleView(APIView):
                 {
                     "client":quotation.company_name,
                     "id": quotation.id,
-                    "author": quotation.author,
+                    "author": {"id": quotation.author.id, "username": quotation.author.username},
                     "expiry_date": quotation.expiry_date,
                 }
             )
@@ -29,14 +30,19 @@ class QuotationSampleView(APIView):
     def post(self, request):
         data = copy.deepcopy(request.data)
 
+        author = User.objects.filter(username=data["author"]).first()
+
+        if not author:
+            return Response({"error": "Something went wrong :("}, status=400)
+
         created_quotation = Quotation.objects.create(
-            company_name=data["company_name"],
+            company_name=data["company_name"] if "company_name" in data else "",
             author=User.objects.filter(username=data["author"]).first(),
             expiry_date = data["expiry_date"]
         )
 
         context = {
-            "success": f"Created quotation id {created_quotation.id} with author {created_quotation.author}"
+            "success": f"Created quotation id {created_quotation.id}"
         }
 
         return Response(context, status=200)
