@@ -18,10 +18,10 @@ class QuotationSampleView(APIView):
         for quotation in quotations:
             lists.append(
                 {
-                    "Client":quotation.company_name,
-                    "Quotation Ref. No.": quotation.id,
-                    "Author": {"ID": quotation.author.id, "Username": quotation.author.username},
-                    "Expiry Date": quotation.expiry_date,
+                    "company_name":quotation.company_name,
+                    "id": quotation.id,
+                    "author": {"id": quotation.author.id, "username": quotation.author.username},
+                    "expiry_date": quotation.expiry_date,
                 }
             )
 
@@ -32,8 +32,19 @@ class QuotationSampleView(APIView):
 
         author = User.objects.filter(username=data["author"]).first()
 
+        # Error Handling
         if not author:
             return Response({"error": "Something went wrong :("}, status=400)
+
+        required_fields = {"company_name", "author"}
+        # if any(field not in data for field in required_fields):
+        missing_info = []
+        for field in required_fields:
+            if field not in data:
+                missing_info.append(field)
+        if missing_info:
+            return Response({"error": f"Incomplete data. Please input: {missing_info}"}, status=400)
+
 
         created_quotation = Quotation.objects.create(
             company_name=data["company_name"] if "company_name" in data else "",
@@ -59,10 +70,10 @@ class QuotationFetchUpdateDestroy(APIView):
             return Response(context, status=400)
 
         context = {
-            "Client": quotation.company_name,
-            "Quotation Ref. No.": quotation.id,
-            "Author": {"ID": quotation.author.id, "Username": quotation.author.username},
-            "Expiry Date": quotation.expiry_date,
+            "company_name": quotation.company_name,
+            "id": quotation.id,
+            "author": {"id": quotation.author.id, "username": quotation.author.username},
+            "expiry_date": quotation.expiry_date,
         }
 
         print(context)

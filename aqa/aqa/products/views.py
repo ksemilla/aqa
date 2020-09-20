@@ -17,11 +17,11 @@ class ProductListCreateView(APIView):
         for product in products:
             list_of_products.append(
                 {
-                    "Product ID": product.id,
-                    "Model Name": product.model_name,
-                    "Description": product.description,
-                    "SRP": product.sell_price,
-                    "Capacity": product.capacity,
+                    "id": product.id,
+                    "model_name": product.model_name,
+                    "description": product.description,
+                    "sell_price": product.sell_price,
+                    "capacity": product.capacity,
                 }
             )
         return Response(list_of_products, status=200)
@@ -30,11 +30,18 @@ class ProductListCreateView(APIView):
     def post(self, request):
         data = copy.deepcopy(request.data)
 
-        # Check duplicates here
-        pass
+        # Check duplicates here. Must have unique model_name and description
+        
 
-        # Check input completion. Must have unique model_name and description
-        pass
+        # Check input completion.
+        required_fields = {"model_name", "description", "capacity"}
+        # if any(field not in data for field in required_fields):
+        missing_info = []
+        for field in required_fields:
+            if field not in data:
+                missing_info.append(field)
+        if missing_info:
+            return Response({"error": f"Incomplete data. Please input: {missing_info}"}, status=400)
 
         new_product = Product.objects.create(
             model_name=data["model_name"],
@@ -42,11 +49,11 @@ class ProductListCreateView(APIView):
             sell_price=data["sell_price"] if "sell_price" in data else 0,
             cost_price=data["cost_price"] if "cost_price" in data else 0, 
             stock_qty=data["stock_qty"] if "stock_qty" in data else 0,
-            capacity=data["capacity"] if "capacity" in data else "",
+            capacity=data["capacity"],
         )
 
         content = {
-            "success": f"New product {model_name} - {description} created"
+            "success": f"Created new product: {new_product.model_name} - {new_product.description}"
         }
 
         return Response(content, status=200)
