@@ -31,6 +31,9 @@ class ProductListCreateView(APIView):
         data = copy.deepcopy(request.data)
 
         # Check duplicates here. Must have unique model_name and description
+        existing_products = Product.objects.values_list("model_name", "description")
+        if (data["model_name"], data["description"]) in existing_products:
+            return Response({"error": f"Product {data["model_name"]} - {data["description"]} is already existing"}, status=400)
         
 
         # Check input completion.
