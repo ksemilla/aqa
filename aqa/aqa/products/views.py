@@ -30,12 +30,6 @@ class ProductListCreateView(APIView):
     def post(self, request):
         data = copy.deepcopy(request.data)
 
-        # Check duplicates here. Must have unique model_name and description
-        existing_products = Product.objects.values_list("model_name", "description")
-        if (data["model_name"], data["description"]) in existing_products:
-            return Response({"error": f"Product {data["model_name"]} - {data["description"]} is already existing"}, status=400)
-        
-
         # Check input completion.
         required_fields = {"model_name", "description", "capacity"}
         # if any(field not in data for field in required_fields):
@@ -45,6 +39,13 @@ class ProductListCreateView(APIView):
                 missing_info.append(field)
         if missing_info:
             return Response({"error": f"Incomplete data. Please input: {missing_info}"}, status=400)
+
+
+        # Check duplicates here. Must have unique model_name and description
+        existing_products = Product.objects.values_list("model_name", "description")
+        if (data["model_name"], data["description"]) in existing_products:
+            return Response({"error": f"Product {data['model_name']} - {data['description']} already existing"}, status=400)
+        
 
         new_product = Product.objects.create(
             model_name=data["model_name"],
