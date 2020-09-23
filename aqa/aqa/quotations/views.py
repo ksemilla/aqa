@@ -76,8 +76,6 @@ class QuotationFetchUpdateDestroy(APIView):
             "expiry_date": quotation.expiry_date,
         }
 
-        print(context)
-
         return Response(context, status=200)
 
     def put(self, request, pk):
@@ -91,7 +89,6 @@ class QuotationFetchUpdateDestroy(APIView):
                 return Response(context, status=400)
 
             quotation.author = User.objects.filter(username=data["author"]).first() if 'author' in data else quotation.author
-            print(quotation.author)
             quotation.expiry_date = data['expiry_date'] if 'expiry_date' in data else quotation.expiry_date
             quotation.company_name = data['company_name'] if 'company_name' in data else quotation.company_name
             quotation.save()

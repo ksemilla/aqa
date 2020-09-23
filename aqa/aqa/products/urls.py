@@ -1,11 +1,12 @@
 from django.urls import path
 
 from .views import (
-    ProductListCreateView
+    ProductListCreateView,
+    ProductFetchUpdateDestroy,
 )
 
 app_name = "products"
 urlpatterns = [
     path("", ProductListCreateView.as_view()),
-    #path("<int:pk>/", QuotationFetchUpdateDestroy.as_view()),
+    path("<int:pk>/", ProductFetchUpdateDestroy.as_view()),
 ]

@@ -6,7 +6,6 @@ from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIVie
 from rest_framework.response import Response
 from rest_framework import status
 
-from aqa.quotations.models import Quotation
 from .models import Product
 
 class ProductListCreateView(APIView):
@@ -40,10 +39,8 @@ class ProductListCreateView(APIView):
         if missing_info:
             return Response({"error": f"Incomplete data. Please input: {missing_info}"}, status=400)
 
-
-        # Check duplicates here. Must have unique model_name and description
-        existing_products = Product.objects.values_list("model_name", "description")
-        if (data["model_name"], data["description"]) in existing_products:
+        
+        if Product.objects.filter(model_name=data["model_name"]) and Product.objects.filter(description=data["description"]):
             return Response({"error": f"Product {data['model_name']} - {data['description']} already existing"}, status=400)
         
 
@@ -61,3 +58,47 @@ class ProductListCreateView(APIView):
         }
 
         return Response(content, status=200)
+
+
+
+class ProductFetchUpdateDestroy(APIView):
+    
+    def get(self, request, pk):
+        product = Product.objects.filter(pk=pk).first()
+        if not product:
+            return Response({"error": f"Product code {pk} does not exists"}, status=400)
+
+        context = {
+            "id": product.id,
+            "model_name": product.model_name,
+            "capacity": product.capacity,
+            "sell_price": product.sell_price,
+            "description": product.description,
+        }
+        return Response(context, status=200)
+
+
+    def put(self, request, pk):
+            data = copy.deepcopy(request.data)
+            product = Product.objects.filter(pk=pk).first()
+            
+            if not product:
+                return Response({"error": f"Product code {pk} does not exists"}, status=400)
+
+            product.model_name = data["model_name"] if 'model_name' in data else product.model_name
+            product.description = data['description'] if 'description' in data else product.description
+            product.capacity = data['capacity'] if 'capacity' in data else product.capacity
+            product.sell_price = data['sell_price'] if 'sell_price' in data else product.sell_price
+            product.cost_price = data['cost_price'] if 'cost_price' in data else product.cost_price
+            product.save()
+            return Response({"success": f"Saved changes in product {product.id}"}, status=200)
+
+    def delete(self, request, pk):
+        product = Product.objects.filter(pk=pk).first()
+        
+        if not product:
+            return Response({"error": f"Product code {pk} does not exists"}, status=400)
+        temp_id = product.id
+        product.delete()
+
+        return Response({"success": f"deleted Product code {temp_id}"})
