@@ -3,6 +3,7 @@ Base settings to build other settings files upon.
 """
 from pathlib import Path
 
+import datetime
 import environ
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
@@ -271,3 +272,18 @@ SOCIALACCOUNT_ADAPTER = "aqa.users.adapters.SocialAccountAdapter"
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=30),
+    'AUTH_HEADER_TYPES': ('JWT',)
+}

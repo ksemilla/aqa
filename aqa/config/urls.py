@@ -5,6 +5,8 @@ from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
+from aqa.login.views import CustomTokenObtainPairView, CustomVerifyTokenView, CustomRefreshVerifyTokenView
+
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path(
@@ -16,6 +18,10 @@ urlpatterns = [
     path("users/", include("aqa.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
+
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', CustomRefreshVerifyTokenView.as_view(), name='token_refresh'),
+    path('api/token/verify/', CustomVerifyTokenView.as_view(), name='token_verify'),
 
     path("quotations/", include("aqa.quotations.urls")),
     path("products/", include("aqa.products.urls")),
