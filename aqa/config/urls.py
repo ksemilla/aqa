@@ -19,10 +19,7 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
 
-    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', CustomRefreshVerifyTokenView.as_view(), name='token_refresh'),
-    path('api/token/verify/', CustomVerifyTokenView.as_view(), name='token_verify'),
-
+    path("api/token/", include("aqa.login.urls")),
     path("quotations/", include("aqa.quotations.urls")),
     path("products/", include("aqa.products.urls")),
 

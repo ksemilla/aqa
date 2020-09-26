@@ -24,7 +24,7 @@ class CustomVerifyTokenView(TokenVerifyView):
         try:
             serializer.is_valid(raise_exception=True)
             data = copy.deepcopy(request.data)
-            decoded = jwt.decode(data['token'], settings.SECRET_KEY)
+            decoded = jwt.decode(data['token'], settings.local.SECRET_KEY)
             user = User.objects.get(id=decoded['user_id'])
         except TokenError as e:
             raise InvalidToken(e.args[0])
