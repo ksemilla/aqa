@@ -7,75 +7,49 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import Product
+from .serializers import ProductSerializer
 
-class ProductListCreateView(APIView):
-
-    def get(self, request):
-        list_of_products = []
-        products = Product.objects.all()
-        for product in products:
-            list_of_products.append(
-                {
-                    "id": product.id,
-                    "model_name": product.model_name,
-                    "description": product.description,
-                    "sell_price": product.sell_price,
-                    "capacity": product.capacity,
-                }
-            )
-        return Response(list_of_products, status=200)
+class ProductListCreateView(ListCreateAPIView):
+    model = Product
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
 
-    def post(self, request):
+    def create(self, request):
         data = copy.deepcopy(request.data)
+        serializer = ProductSerializer(data=data)
+        if serializer.is_valid():
+            product = serializer.save()
+            product.save()
 
-        # Check input completion.
-        required_fields = {"model_name", "description", "capacity"}
-        # if any(field not in data for field in required_fields):
-        missing_info = []
-        for field in required_fields:
-            if field not in data:
-                missing_info.append(field)
-        if missing_info:
-            return Response({"error": f"Incomplete data. Please input: {missing_info}"}, status=400)
-
-        
-        if Product.objects.filter(model_name=data["model_name"]) and Product.objects.filter(description=data["description"]):
-            return Response({"error": f"Product {data['model_name']} - {data['description']} already existing"}, status=400)
-        
-
-        new_product = Product.objects.create(
-            model_name=data["model_name"],
-            description=data["description"],
-            sell_price=data["sell_price"] if "sell_price" in data else 0,
-            cost_price=data["cost_price"] if "cost_price" in data else 0, 
-            stock_qty=data["stock_qty"] if "stock_qty" in data else 0,
-            capacity=data["capacity"],
-        )
-
-        content = {
-            "success": f"Created new product: {new_product.model_name} - {new_product.description}"
-        }
-
-        return Response(content, status=200)
+            return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
+        return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProductRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    model = Product
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
-class ProductFetchUpdateDestroy(APIView):
     
-    def get(self, request, pk):
+    def retrieve(self, request, pk):
         product = Product.objects.filter(pk=pk).first()
         if not product:
-            return Response({"error": f"Product code {pk} does not exists"}, status=400)
+            return Response({"error": f"Product code {pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
+        
+        # product = Product.objects.filter(pk=pk).first()
+        # if not product:
+        #     return Response({"error": f"Product code {pk} does not exists"}, status=400)
 
-        context = {
-            "id": product.id,
-            "model_name": product.model_name,
-            "capacity": product.capacity,
-            "sell_price": product.sell_price,
-            "description": product.description,
-        }
-        return Response(context, status=200)
+        # context = {
+        #     "id": product.id,
+        #     "model_name": product.model_name,
+        #     "capacity": product.capacity,
+        #     "sell_price": product.sell_price,
+        #     "description": product.description,
+        # }
+        # return Response(context, status=200)
 
 
     def put(self, request, pk):

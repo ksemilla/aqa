@@ -22,7 +22,7 @@ class QuotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quotation
         fields = (
-            'id', 'company_name', 'created_date', 'author', 'author_detail', 'items'
+            'id', 'company_name', 'created_date', 'author', 'author_detail', 'items',
         )
 
 class QuotationItemSerializer(serializers.ModelSerializer):

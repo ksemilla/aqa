@@ -1,10 +1,8 @@
 from django.urls import path
 
 from .views import (
-    QuotationSampleView,
     QuotationFetchUpdateDestroy,
-
-    QuotationListCreateView
+    QuotationListCreateView,
 )
 
 app_name = "quotations"

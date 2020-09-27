@@ -14,54 +14,6 @@ from .serializers import (
     QuotationItemSerializer
 )
 
-class QuotationSampleView(APIView):
-    pass
-#     def get(self, request):
-
-#         quotations = Quotation.objects.all()
-
-#         lists = []
-#         for quotation in quotations:
-#             lists.append(
-#                 {
-#                     "company_name":quotation.company_name,
-#                     "id": quotation.id,
-#                     "author": {"id": quotation.author.id, "username": quotation.author.username},
-#                     "expiry_date": quotation.expiry_date,
-#                 }
-#             )
-
-#         return Response(lists, status=200)
-
-#     def post(self, request):
-#         data = copy.deepcopy(request.data)
-
-#         author = User.objects.filter(username=data["author"]).first()
-
-#         # Error Handling
-#         if not author:
-#             return Response({"error": "Something went wrong :("}, status=400)
-
-#         required_fields = {"company_name", "author"}
-#         # if any(field not in data for field in required_fields):
-#         missing_info = []
-#         for field in required_fields:
-#             if field not in data:
-#                 missing_info.append(field)
-#         if missing_info:
-#             return Response({"error": f"Incomplete data. Please input: {missing_info}"}, status=400)
-
-
-#         created_quotation = Quotation.objects.create(
-#             company_name=data["company_name"] if "company_name" in data else "",
-#             author=User.objects.filter(username=data["author"]).first(),
-#         )
-
-#         context = {
-#             "success": f"Created quotation id {created_quotation.id} for {created_quotation.company_name}"
-#         }
-
-#         return Response(context, status=200)
 
 class QuotationListCreateView(ListCreateAPIView):
     model = Quotation
@@ -94,6 +46,7 @@ class QuotationListCreateView(ListCreateAPIView):
                 quotation_item.save()
 
             quotation.save()
+            print(data)
             return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
         return Response({"error", "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 

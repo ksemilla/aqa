@@ -8,3 +8,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'email', 'username','name', 'scope'
         )
+
+    def __str__():
+        return UserSerializer.username
