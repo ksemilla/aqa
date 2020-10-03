@@ -50,6 +50,21 @@ class QuotationListCreateView(ListCreateAPIView):
             return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
         return Response({"error", "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
+'''
+class QuotationRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+    model = Quotation
+    queryset = Quotaion.objects.all()
+    serializer_class = QuotationSerializer
+
+    def retrieve(self, request, pk):
+        if not Quotation.objects.filter(pk=pk).first():
+            return Response({"error": f"Product code {pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
+
+
+    def update(self,request,pk):
+        pass
+'''
 
 class QuotationFetchUpdateDestroy(APIView):
     def get(self, request, pk):
