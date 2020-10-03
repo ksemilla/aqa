@@ -20,74 +20,27 @@ class QuotationListCreateView(ListCreateAPIView):
     queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer
 
-    # def create(self, request):
-    #     data = copy.deepcopy(request.data)
-    #     author = User.objects.get(pk=pk)
-    #     data["author"] = author.id
-
-    #     data_is_valid = []
-    #     item_serializers = []
-
-    #     if "items" in data:
-    #         for item in data["items"]:
-    #             item_serializer = QuotationItemSerializer(item)
-    #             data_is_valid.append(item_serializer.is_valid())
-    #             item_serializers.append(item_serializer)
-            
-    #     quotation_serializer = QuotationSerializer(data=data)
-    #     data_is_valid.append(quotation_serializer.is_valid())
-                
-    #     if all(data_is_valid):
-    #         quotation = serializer.save()
-    #         quotation.save()
-
-    #         return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
-    #     return Response({"error": "something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def create(self, request):
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
         data['author'] = user.id
 
-        serializers_list = [] # values are boolean True or False
-        serializer_container = []
+        data_serializers_isvalid = [] # values are boolean True or False
+        item_serializers = []
 
         if 'items' in data:
             for item in data['items']:
                 serializer = QuotationItemSerializer(data=item)
-                serializers_list.append(serializer.is_valid())
-                serializer_container.append(serializer)
+                data_serializers_isvalid.append(serializer.is_valid())
+                item_serializers.append(serializer)
 
         serializer = QuotationSerializer(data=data)
-        serializers_list.append(serializer.is_valid())
+        data_serializers_isvalid.append(serializer.is_valid())
 
-        if all(serializers_list):
+        if all(data_serializers_isvalid):
             quotation = serializer.save()
 
-            for item_serializer in serializer_container:
+            for item_serializer in item_serializers:
                 quotation_item = item_serializer.save()
                 quotation_item.quotation = quotation
                 quotation_item.save()
