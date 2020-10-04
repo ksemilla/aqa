@@ -28,10 +28,10 @@ class ProductListCreateView(ListCreateAPIView):
             product = serializer.save()
             product.save()
             return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
-        return Response({"error": "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProductRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     model = Product
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -52,7 +52,13 @@ class ProductRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         serializer = ProductSerializer(product, data=data)
 
         if serializer.is_valid():
+
+            #Check for duplicates. A duplicate has the same description and model name with existing product
+            if Product.objects.filter(model_name=data["model_name"]).filter(description=data["description"]):
+                return Response({"error": f"Product {data['model_name']} - {data['description']} is already existing"}, status=status.HTTP_400_BAD_REQUEST)
+
             product_obj = serializer.save()
+            product_obj.save()
             return Response(ProductSerializer(product_obj).data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from aqa.users.models import User
-from .models import Quotation
+from .models import Quotation, QuotationItem
 from .serializers import (
     QuotationSerializer,
     QuotationItemSerializer
@@ -25,33 +25,37 @@ class QuotationListCreateView(ListCreateAPIView):
         user = User.objects.get(pk=request.user.id)
         data['author'] = user.id
 
-        data_serializers_isvalid = [] # values are boolean True or False
+        items_isvalid = [] # values are boolean True or False
         item_serializers = []
 
         if 'items' in data:
             for item in data['items']:
-                serializer = QuotationItemSerializer(data=item)
-                data_serializers_isvalid.append(serializer.is_valid())
-                item_serializers.append(serializer)
+                item_serializer = QuotationItemSerializer(data=item)
+                items_isvalid.append(item_serializer.is_valid())
+                item_serializers.append(item_serializer)
+        quotation_serializer = QuotationSerializer(data=data)
 
-        serializer = QuotationSerializer(data=data)
-        data_serializers_isvalid.append(serializer.is_valid())
-
-        if all(data_serializers_isvalid):
-            quotation = serializer.save()
-
+        if all(items_isvalid) and quotation_serializer.is_valid:
+            quotation = quotation_serializer.save()
             for item_serializer in item_serializers:
                 quotation_item = item_serializer.save()
                 quotation_item.quotation = quotation
                 quotation_item.save()
-
             quotation.save()
-            print(data)
             return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
+        
+        else: #check what data is invalid, and return the error
+            all_isvalid = [quotation_serializer.is_valid()] + items_isvalid
+            data_serializers = [item_serializers] + quotation_serializer
+            for index in range(len(all_isvalid)):
+                if all_isvalid[index] == False:
+                    serializer = data_serializers[index]
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    
         return Response({"error", "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 '''
-class QuotationRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     model = Quotation
     queryset = Quotaion.objects.all()
     serializer_class = QuotationSerializer
@@ -66,14 +70,14 @@ class QuotationRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         pass
 '''
 
-class QuotationFetchUpdateDestroy(APIView):
-    def get(self, request, pk):
+class QuotationFetchUpdateDestroyView(APIView):
+    def get(self, request, quotation_pk):
 
-        quotation = Quotation.objects.filter(pk=pk).first()
+        quotation = Quotation.objects.filter(pk=quotation_pk).first()
 
         if not quotation:
             context = {
-                "error": f"Primary Key {pk} does not exists",
+                "error": f"Primary Key {quotation_pk} does not exists",
             }
             return Response(context, status=400)
 
@@ -86,13 +90,13 @@ class QuotationFetchUpdateDestroy(APIView):
 
         return Response(context, status=200)
 
-    def put(self, request, pk):
+    def put(self, request, quotation_pk):
             data = copy.deepcopy(request.data)
-            quotation = Quotation.objects.filter(pk=pk).first()
+            quotation = Quotation.objects.filter(pk=quotation_pk).first()
             
             if not quotation:
                 context = {
-                    "error": f"Primary Key {pk} does not exists",
+                    "error": f"Primary Key {quotation_pk} does not exists",
                 }
                 return Response(context, status=400)
 
@@ -102,15 +106,74 @@ class QuotationFetchUpdateDestroy(APIView):
             quotation.save()
             return Response({"success": f"Saved {quotation.id}"}, status=200)
 
-    def delete(self, request, pk):
-        quotation = Quotation.objects.filter(pk=pk).first()
+    def delete(self, request, quotation_pk):
+        quotation = Quotation.objects.filter(pk=quotation_pk).first()
         
         if not quotation:
             context = {
-                "error": f"Primary Key {pk} does not exists",
+                "error": f"Primary Key {quotation_pk} does not exists",
             }
             return Response(context, status=400)
         temp_id = quotation.id
         quotation.delete()
 
         return Response({"success": f"deleted quotatin id {temp_id}"})
+    
+
+class QuotationItemListCreateView(ListCreateAPIView):
+    model = QuotationItem
+    queryset = QuotationItem.objects.all()
+    serializer_class = QuotationItemSerializer
+
+    def create(self, request):
+        data = copy.deepcopy(request.data)
+        serializer = QuotationItemSerializer(data=data)
+
+        if serializer.is_valid():
+            quotation_item = serializer.save()
+            quotation_item.save()
+
+            return Response(QuotationItemSerializer(quotation_item).data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+
+class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    model = QuotationItem
+    queryset = QuotationItem.objects.all()
+    serializer_class = QuotationItemSerializer
+
+
+    def retrieve(self, request, quotation_item_pk):
+        quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
+        if not quotation_item:
+            content = {"error": f"Quotation item {quotation_item_pk} does not exists"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        return Response(QuotationItemSerializer(quotation_item).data, status=status.HTTP_200_OK)
+
+
+    def update(self, request, quotation_item_pk):
+        data = copy.deepcopy(request.data)
+        quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
+        if not quotation_item:
+            content = {"error": f"Quotation item {quotation_item_pk} does not exists"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+    
+        serializer = QuotationItemSerializer(quotation_item, data=data)
+
+        if serializer.is_valid():
+            quotation_item_obj = serializer.save()
+            quotation_item_obj.save()
+            return Response(QuotationItemSerializer(quotation_item_obj).data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, quotation_item_pk):
+        quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
+        if not quotation_item:
+            content = {"error": f"Quotation item {quotation_item_pk} does not exists"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        temp_id, temp_quotation_id = quotation_item.id, quotation_item.quotation.id
+        quotation_item.delete()
+
+        return Response({"success": f"deleted quotation item {temp_id} - from quotation {temp_quotation_id}"})
