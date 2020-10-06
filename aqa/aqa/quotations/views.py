@@ -47,11 +47,10 @@ class QuotationListCreateView(ListCreateAPIView):
         else: #check what data is invalid, and return the error
             all_isvalid = [quotation_serializer.is_valid()] + items_isvalid
             data_serializers = [item_serializers] + quotation_serializer
-            for index in range(len(all_isvalid)):
-                if all_isvalid[index] == False:
-                    serializer = data_serializers[index]
+            for validity, serializer in zip(all_isvalid, data_serializers):
+                if not validity:
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-                    
+
         return Response({"error", "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 '''
