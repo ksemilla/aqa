@@ -29,5 +29,5 @@ class QuotationItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuotationItem
         fields = (
-            'id', 'quotation', 'line_number', 'product', 'quantity'
+            'id', 'quotation', 'product', 'quantity'
         )

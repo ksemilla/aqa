@@ -54,7 +54,7 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         if serializer.is_valid():
 
             #Check for duplicates. A duplicate has the same description and model name with existing product
-            if Product.objects.filter(model_name=data["model_name"]).filter(description=data["description"]):
+            if Product.objects.filter(model_name=data["model_name"]).filter(description=data["description"]).exclude(pk=pk):
                 return Response({"error": f"Product {data['model_name']} - {data['description']} is already existing"}, status=status.HTTP_400_BAD_REQUEST)
 
             product_obj = serializer.save()
