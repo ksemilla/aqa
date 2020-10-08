@@ -42,9 +42,9 @@ class QuotationListCreateView(ListCreateAPIView):
                 quotation_item.quotation = quotation
                 quotation_item.save()
             quotation.save()
-            return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
+            return Response(QuotationSerializer(quotation), status=status.HTTP_200_OK)
         
-        else: #check what data is invalid, and return the error
+        else: #check what data is invalid, and return the error of that data
             all_isvalid = [quotation_serializer.is_valid()] + items_isvalid
             data_serializers = [item_serializers] + quotation_serializer
             for validity, serializer in zip(all_isvalid, data_serializers):
@@ -53,70 +53,82 @@ class QuotationListCreateView(ListCreateAPIView):
 
         return Response({"error", "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
-'''
+
 class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     model = Quotation
-    queryset = Quotaion.objects.all()
+    queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer
 
-    def retrieve(self, request, pk):
-        if not Quotation.objects.filter(pk=pk).first():
-            return Response({"error": f"Product code {pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
-
-
-    def update(self,request,pk):
-        pass
-'''
-
-class QuotationFetchUpdateDestroyView(APIView):
-    def get(self, request, quotation_pk):
-
+    def retrieve(self, request, quotation_pk):
         quotation = Quotation.objects.filter(pk=quotation_pk).first()
-
         if not quotation:
-            context = {
-                "error": f"Primary Key {quotation_pk} does not exists",
-            }
-            return Response(context, status=400)
+            return Response({"error": f"Quotation {quotation_pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
 
-        context = {
-            "company_name": quotation.company_name,
-            "id": quotation.id,
-            "author": {"id": quotation.author.id, "username": quotation.author.username},
-            #"expiry_date": quotation.expiry_date,
-        }
 
-        return Response(context, status=200)
+    def update(self,request,quotation_pk):
+        pass
 
-    def put(self, request, quotation_pk):
-            data = copy.deepcopy(request.data)
-            quotation = Quotation.objects.filter(pk=quotation_pk).first()
-            
-            if not quotation:
-                context = {
-                    "error": f"Primary Key {quotation_pk} does not exists",
-                }
-                return Response(context, status=400)
-
-            quotation.author = User.objects.filter(username=data["author"]).first() if 'author' in data else quotation.author
-            quotation.expiry_date = data['expiry_date'] if 'expiry_date' in data else quotation.expiry_date
-            quotation.company_name = data['company_name'] if 'company_name' in data else quotation.company_name
-            quotation.save()
-            return Response({"success": f"Saved {quotation.id}"}, status=200)
 
     def delete(self, request, quotation_pk):
         quotation = Quotation.objects.filter(pk=quotation_pk).first()
-        
         if not quotation:
-            context = {
-                "error": f"Primary Key {quotation_pk} does not exists",
-            }
-            return Response(context, status=400)
+            return Response({"error": f"Quotation {quotation_pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
         temp_id = quotation.id
         quotation.delete()
-
         return Response({"success": f"deleted quotatin id {temp_id}"})
+        
+
+
+
+# class QuotationFetchUpdateDestroyView(APIView):
+#     def get(self, request, quotation_pk):
+
+#         quotation = Quotation.objects.filter(pk=quotation_pk).first()
+
+#         if not quotation:
+#             context = {
+#                 "error": f"Primary Key {quotation_pk} does not exists",
+#             }
+#             return Response(context, status=400)
+
+#         context = {
+#             "company_name": quotation.company_name,
+#             "id": quotation.id,
+#             "author": {"id": quotation.author.id, "username": quotation.author.username},
+#             #"expiry_date": quotation.expiry_date,
+#         }
+
+#         return Response(context, status=200)
+
+#     def put(self, request, quotation_pk):
+#             data = copy.deepcopy(request.data)
+#             quotation = Quotation.objects.filter(pk=quotation_pk).first()
+            
+#             if not quotation:
+#                 context = {
+#                     "error": f"Primary Key {quotation_pk} does not exists",
+#                 }
+#                 return Response(context, status=400)
+
+#             quotation.author = User.objects.filter(username=data["author"]).first() if 'author' in data else quotation.author
+#             quotation.expiry_date = data['expiry_date'] if 'expiry_date' in data else quotation.expiry_date
+#             quotation.company_name = data['company_name'] if 'company_name' in data else quotation.company_name
+#             quotation.save()
+#             return Response({"success": f"Saved {quotation.id}"}, status=200)
+
+#     def delete(self, request, quotation_pk):
+#         quotation = Quotation.objects.filter(pk=quotation_pk).first()
+        
+#         if not quotation:
+#             context = {
+#                 "error": f"Primary Key {quotation_pk} does not exists",
+#             }
+#             return Response(context, status=400)
+#         temp_id = quotation.id
+#         quotation.delete()
+
+#         return Response({"success": f"deleted quotatin id {temp_id}"})
     
 
 class QuotationItemListCreateView(ListCreateAPIView):
