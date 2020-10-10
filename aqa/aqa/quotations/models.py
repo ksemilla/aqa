@@ -20,6 +20,7 @@ class QuotationItem(models.Model):
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE, blank=True, null=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    line_number = models.PositiveIntegerField()
 
     def __str__(self):
         return f"Quotation Item {self.product} x {self.quantity} units from Quotation {self.quotation.id}"

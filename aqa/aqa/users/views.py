@@ -3,24 +3,29 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DetailView, RedirectView, UpdateView
+#from django.views.generic import DetailView, RedirectView, UpdateView, ListAPIView, UpdateAPIView
+
 
 import copy
 import json
 
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
 User = get_user_model()
 
-class UserListCreateView(APIView):
-
-    permission_classes = (AllowAny,)
+class UserListView(ListAPIView):
 
     def get(self, request):
+        try:
+            if request.user.is_superuser:
+                pass
+        except:
+            return Response({'error':'Access denied'}, status=status.HTTP_403_Forbidden)
+
         users = User.objects.all()
         list_of_users = []
         for user in users:
@@ -32,6 +37,11 @@ class UserListCreateView(APIView):
                 }
             )
         return Response(list_of_users, status=200)
+
+
+class UserCreateView(CreateAPIView):
+
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         data = copy.deepcopy(request.data)
