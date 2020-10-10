@@ -19,12 +19,11 @@ User = get_user_model()
 
 class UserListView(ListAPIView):
 
+    #permission_classes = (AllowAny,)
+
     def get(self, request):
-        try:
-            if request.user.is_superuser:
-                pass
-        except:
-            return Response({'error':'Access denied'}, status=status.HTTP_403_Forbidden)
+        if not request.user.is_superuser:
+            return Response({'error':'Access denied'}, status=status.HTTP_400_BAD_REQUEST)
 
         users = User.objects.all()
         list_of_users = []
