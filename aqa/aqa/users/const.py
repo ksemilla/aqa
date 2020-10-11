@@ -1,6 +1,6 @@
 class UserScopes:
-    USER = 'user' # wala tong kaya
-    ADMIN = 'admin'
+    USER = 'user' # no permissions
+    ADMIN = 'admin' # superuser
     APPLICATION_ENGR = "ae"
     SALES_ENGR = "se"
     SALES_LEAD = "sl"

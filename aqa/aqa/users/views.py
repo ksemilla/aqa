@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 #from django.views.generic import DetailView, RedirectView, UpdateView, ListAPIView, UpdateAPIView
 
-
 import copy
 import json
 
@@ -15,31 +14,27 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
+from .serializers import UserSerializer
+
 User = get_user_model()
 
 class UserListView(ListAPIView):
-
-    #permission_classes = (AllowAny,)
+    model = User
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
     def get(self, request):
-        if not request.user.is_superuser:
+        permission_scope = ['admin', 'bh']
+        if request.user.scope not in permission_scope:
             return Response({'error':'Access denied'}, status=status.HTTP_400_BAD_REQUEST)
-
-        users = User.objects.all()
-        list_of_users = []
-        for user in users:
-            list_of_users.append(
-                {
-                    "id": user.id,
-                    "username": user.username,
-                    "email address": user.email,
-                }
-            )
-        return Response(list_of_users, status=200)
+        serializer = UserSerializer(User.objects.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserCreateView(CreateAPIView):
-
+    model = User
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -60,7 +55,12 @@ class UserCreateView(CreateAPIView):
         content = {
             "success": f"New user {new_user.username} successfully created"
         }
-        return Response(content, status=200)
+        return Response(content, status=status.HTTP_200_OK)
+
+
+class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    pass
+
 
 # class UserDetailView(LoginRequiredMixin, DetailView):
 
