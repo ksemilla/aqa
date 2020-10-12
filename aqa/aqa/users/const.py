@@ -4,7 +4,8 @@ class UserScopes:
     APPLICATION_ENGR = "ae"
     SALES_ENGR = "se"
     SALES_LEAD = "sl"
-    BU_HEAD = "bh"
+    BU_HEAD = "bh" #Business Unit Head
+    SCM = 'scm' #supply chain personnel
 
 USER_SCOPE_OPTIONS = [
     (UserScopes.USER, 'user'),

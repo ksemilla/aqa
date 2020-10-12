@@ -39,23 +39,14 @@ class UserCreateView(CreateAPIView):
 
     def post(self, request):
         data = copy.deepcopy(request.data)
-        if User.objects.filter(username=data["username"]).exists(): # check if username already exists
-            content = {
-                "error": f"Error: Username {data['username']} already exists."
-            }
-            return Response(content, status=400)
+        serializer = UserSerializer(data=data)
 
-        new_user = User.objects.create(
-            username=data["username"],
-            email=data["email"]
-        )
-        new_user.set_password(data["password"])
-        new_user.save()
-
-        content = {
-            "success": f"New user {new_user.username} successfully created"
-        }
-        return Response(content, status=status.HTTP_200_OK)
+        if serializer.is_valid():                
+            new_user = serializer.save()
+            new_user.set_password(data["password"])
+            new_user.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
