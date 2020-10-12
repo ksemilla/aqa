@@ -62,14 +62,14 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, quotation_pk):
         quotation = Quotation.objects.filter(pk=quotation_pk).first()
         if not quotation:
-            return Response({"error": f"Quotation {quotation_pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"Quotation {quotation_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
 
 
     def update(self,request,quotation_pk):
         quotation = Quotation.objects.filter(pk=quotation_pk).first()
         if not quotation:
-            return Response({"error": f"Quotation {quotation_pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"Quotation {quotation_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
         data['author'] = user.id # the one who updated will be the new author
@@ -84,7 +84,7 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
                 if "id" in item:
                     quotation_item = quotation.quotationitem_set.filter(pk=item["id"]).first()
                     if not quotation_item:
-                        content = {"error": f"Quotation item {item['id']} does not exists in Quotation {quotation.id}"}
+                        content = {"error": f"Quotation item {item['id']} does not exist in Quotation {quotation.id}"}
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
                     item_serializer = QuotationItemSerializer(quotation_item, data=item)
                     updated_ids.add(item["id"])
@@ -124,7 +124,7 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     def delete(self, request, quotation_pk):
         quotation = Quotation.objects.filter(pk=quotation_pk).first()
         if not quotation:
-            return Response({"error": f"Quotation {quotation_pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"Quotation {quotation_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         temp_id = quotation.id
         quotation.delete()
         return Response({"success": f"deleted quotatin id {temp_id}"})
@@ -157,7 +157,7 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, quotation_item_pk):
         quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
         if not quotation_item:
-            content = {"error": f"Quotation item {quotation_item_pk} does not exists"}
+            content = {"error": f"Quotation item {quotation_item_pk} does not exist"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         return Response(QuotationItemSerializer(quotation_item).data, status=status.HTTP_200_OK)
 
@@ -165,7 +165,7 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     def update(self, request, quotation_item_pk):
         quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
         if not quotation_item:
-            content = {"error": f"Quotation item {quotation_item_pk} does not exists"}
+            content = {"error": f"Quotation item {quotation_item_pk} does not exist"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         data = copy.deepcopy(request.data)    
         serializer = QuotationItemSerializer(quotation_item, data=data)
@@ -180,7 +180,7 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     def delete(self, request, quotation_item_pk):
         quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
         if not quotation_item:
-            content = {"error": f"Quotation item {quotation_item_pk} does not exists"}
+            content = {"error": f"Quotation item {quotation_item_pk} does not exist"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         temp_id, temp_quotation_id = quotation_item.id, quotation_item.quotation.id
         quotation_item.delete()

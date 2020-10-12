@@ -50,8 +50,67 @@ class UserCreateView(CreateAPIView):
 
 
 class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
-    pass
+    model = User
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
+
+    def retrieve(self, request, user_pk):
+        permission_scope = ['admin']
+        data = copy.deepcopy(request.data)
+
+        if (request.user.scope not in permission_scope) and (request.user.id != user_pk):
+            return Response({'error':'Access denied'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(pk=user_pk).first()
+        if not user:
+            return Response({"error": f"User id {user_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+
+    
+    def update(self, request, user_pk):
+        permission_scope = ['admin']
+        data = copy.deepcopy(request.data)
+
+        if (request.user.scope not in permission_scope) and (request.user.id != user_pk):
+            return Response({'error':'Access denied'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(pk=user_pk).first()
+        if not user:
+            return Response({'error': f'User id {user_pk} does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = UserSerializer(user, data=data)
+        if serializer.is_valid():
+
+            #Check for duplicate email
+            if 'email' in data:
+                if User.objects.filter(email=data["email"]).exclude(pk=user_pk):
+                    content = {"error": f"email {data['email']} already exists"}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            
+            user = serializer.save()
+            if 'password' in data:
+                user.set_password(data['password'])
+            user.save()
+            return Response(UserSerializer(user).data, status=status.HTTP_202_ACCEPTED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, user_pk):
+        permission_scope = ['admin']
+        data = copy.deepcopy(request.data)
+        if request.user.scope not in permission_scope:
+            return Response({'error':'Access denied'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.filter(pk=user_pk).first()
+        
+        if not user:
+            return Response({'error': f'User id {user_pk} does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        temp_id, temp_username = user.id, user.username
+        user.delete()
+
+        return Response({"success": f"deleted user {temp_id} - {temp_username}"})
 
 # class UserDetailView(LoginRequiredMixin, DetailView):
 

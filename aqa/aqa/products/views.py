@@ -23,7 +23,7 @@ class ProductListCreateView(ListCreateAPIView):
 
             #Check for duplicates. A duplicate has the same description and model name with existing product
             if Product.objects.filter(model_name=data["model_name"]).filter(description=data["description"]):
-                return Response({"error": f"Product {data['model_name']} - {data['description']} is already existing"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error": f"Product {data['model_name']} - {data['description']} already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
             product = serializer.save()
             product.save()
@@ -39,7 +39,7 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, pk):
         product = Product.objects.filter(pk=pk).first()
         if not product:
-            return Response({"error": f"Product code {pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"Product code {pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
         
     
@@ -47,15 +47,17 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         data = copy.deepcopy(request.data)
         product = Product.objects.filter(pk=pk).first()
         if not product:
-            return Response({"error": f"Product code {pk} does not exists"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": f"Product code {pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = ProductSerializer(product, data=data)
 
         if serializer.is_valid():
 
             #Check for duplicates. A duplicate has the same description and model name with existing product
-            if Product.objects.filter(model_name=data["model_name"]).filter(description=data["description"]).exclude(pk=pk):
-                return Response({"error": f"Product {data['model_name']} - {data['description']} is already existing"}, status=status.HTTP_400_BAD_REQUEST)
+            if ('model_name' in data) and ('description' in data):
+                if Product.objects.filter(model_name=data["model_name"]).filter(description=data["description"]).exclude(pk=pk):
+                    content = {"error": f"Product {data['model_name']} - {data['description']} already exists"}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
             product_obj = serializer.save()
             product_obj.save()
@@ -67,7 +69,7 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         product = Product.objects.filter(pk=pk).first()
         
         if not product:
-            return Response({"error": f"Product code {pk} does not exists"}, status=400)
+            return Response({"error": f"Product code {pk} does not exist"}, status=400)
         temp_id, temp_model_name = product.id, product.model_name
         product.delete()
 
