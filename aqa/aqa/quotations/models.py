@@ -12,8 +12,8 @@ class Quotation(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, related_name='quotations_as_author', on_delete=models.CASCADE)
     application_engr = models.ForeignKey(User, related_name='quotations_as_ae', on_delete=models.CASCADE, null=True)
-    sales_engr = models.ForeignKey(User, related_name='quotations_as_se' ,on_delete=models.CASCADE, null=True)
-    sales_lead = models.ForeignKey(User, related_name='quotations_as_sl' ,on_delete=models.CASCADE, null=True)
+    sales_engr = models.ForeignKey(User, related_name='quotations_as_se', on_delete=models.CASCADE, null=True)
+    sales_lead = models.ForeignKey(User, related_name='quotations_as_sl', on_delete=models.CASCADE, null=True)
     # expiry_date = models.DateField(blank=True, null=True, default=quote_duration)
 
     def __str__(self):

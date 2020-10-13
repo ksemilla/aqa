@@ -15,18 +15,18 @@ class ProductListCreateView(ListCreateAPIView):
     serializer_class = ProductSerializer
 
     def get(self, request):
-        restricted_scope = ['user']
-        if request.user.scope in restricted_scope:
-            raise exceptions.PermissionDenied
+        # restricted_scope = ['user']
+        # if request.user.scope in restricted_scope:
+        #     raise exceptions.PermissionDenied
         
         serializer = ProductSerializer(Product.objects.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     def create(self, request):
-        allowed_scope = ['admin', 'scm']
-        if request.user.scope not in allowed_scope:
-            raise exceptions.PermissionDenied
+        # allowed_scope = ['admin', 'scm']
+        # if request.user.scope not in allowed_scope:
+        #     raise exceptions.PermissionDenied
        
         data = copy.deepcopy(request.data)
         serializer = ProductSerializer(data=data)

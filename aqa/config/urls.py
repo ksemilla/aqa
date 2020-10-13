@@ -21,8 +21,8 @@ urlpatterns = [
     
     # Your stuff: custom urls includes go here
     path("api/token/", include("aqa.login.urls")),
-    path("quotations/", include("aqa.quotations.urls")),
-    path("products/", include("aqa.products.urls")),
+    path("api/quotations/", include("aqa.quotations.urls")),
+    path("api/products/", include("aqa.products.urls")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
