@@ -4,7 +4,7 @@ import json
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, exceptions
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from aqa.users.models import User
@@ -19,8 +19,29 @@ class QuotationListCreateView(ListCreateAPIView):
     model = Quotation
     queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer
+    allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
+
+
+    def get(self, request):
+        if request.user.scope not in self.allowed_scope:
+            raise exceptions.PermissionDenied
+
+        if request.user.scope == 'ae':
+            serializer = QuotationSerializer(request.user.quotations_as_ae.all(), many=True)
+        elif request.user.scope == 'se':
+            serializer = QuotationSerializer(request.user.quotations_as_se.all(), many=True)
+        elif request.user.scope == 'sl':
+            serializer = QuotationSerializer(request.user.quotations_as_sl.all(), many=True)
+        else:
+            serializer = QuotationSerializer(Quotation.objects.all(), many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     def create(self, request):
+        if request.user.scope not in self.allowed_scope:
+            raise exceptions.PermissionDenied
+
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
         data['author'] = user.id
@@ -58,18 +79,44 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     model = Quotation
     queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer
+    allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
 
     def retrieve(self, request, quotation_pk):
-        quotation = Quotation.objects.filter(pk=quotation_pk).first()
+        if request.user.scope not in self.allowed_scope:
+            raise exceptions.PermissionDenied
+
+        if request.user.scope == 'ae':
+            quotation = request.user.quotations_as_ae.filter(pk=quotation_pk).first()
+        elif request.user.scope == 'se':
+            quotation = request.user.quotations_as_se.filter(pk=quotation_pk).first()
+        elif request.user.scope == 'sl':
+            quotation = request.user.quotations_as_sl.filter(pk=quotation_pk).first()
+        else:
+            quotation = Quotation.objects.filter(pk=quotation_pk).first()
+
         if not quotation:
-            return Response({"error": f"Quotation {quotation_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            content = {"error": f"Quotation {quotation_pk} does not exist or cannot be accessed"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
 
 
     def update(self,request,quotation_pk):
-        quotation = Quotation.objects.filter(pk=quotation_pk).first()
+        if request.user.scope not in self.allowed_scope:
+            raise exceptions.PermissionDenied
+
+        if request.user.scope == 'ae':
+            quotation = request.user.quotations_as_ae.filter(pk=quotation_pk).first()
+        elif request.user.scope == 'se':
+            quotation = request.user.quotations_as_se.filter(pk=quotation_pk).first()
+        elif request.user.scope == 'sl':
+            quotation = request.user.quotations_as_sl.filter(pk=quotation_pk).first()
+        else:
+            quotation = Quotation.objects.filter(pk=quotation_pk).first()
+
         if not quotation:
-            return Response({"error": f"Quotation {quotation_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            content = {"error": f"Quotation {quotation_pk} does not exist or cannot be accessed"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
         data['author'] = user.id # the one who updated will be the new author
@@ -121,13 +168,26 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         return Response({"error", "Something went wrong"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-    def delete(self, request, quotation_pk):
-        quotation = Quotation.objects.filter(pk=quotation_pk).first()
+    def destroy(self, request, quotation_pk):
+        if request.user.scope not in self.allowed_scope:
+            raise exceptions.PermissionDenied
+
+        if request.user.scope == 'ae':
+            quotation = request.user.quotations_as_ae.filter(pk=quotation_pk).first()
+        elif request.user.scope == 'se':
+            quotation = request.user.quotations_as_se.filter(pk=quotation_pk).first()
+        elif request.user.scope == 'sl':
+            quotation = request.user.quotations_as_sl.filter(pk=quotation_pk).first()
+        else:
+            quotation = Quotation.objects.filter(pk=quotation_pk).first()
+
         if not quotation:
-            return Response({"error": f"Quotation {quotation_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            content = {"error": f"Quotation {quotation_pk} does not exist or cannot be accessed"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
         temp_id = quotation.id
         quotation.delete()
-        return Response({"success": f"deleted quotatin id {temp_id}"})
+        return Response({"success": f"Deleted Quotation {temp_id}"})
 
 
 
@@ -177,7 +237,7 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    def delete(self, request, quotation_item_pk):
+    def destroy(self, request, quotation_item_pk):
         quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
         if not quotation_item:
             content = {"error": f"Quotation item {quotation_item_pk} does not exist"}

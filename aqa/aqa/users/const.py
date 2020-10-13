@@ -14,4 +14,5 @@ USER_SCOPE_OPTIONS = [
     (UserScopes.SALES_ENGR, 'se'),
     (UserScopes.SALES_LEAD, 'sl'),
     (UserScopes.BU_HEAD, 'bh'),
+    (UserScopes.SCM, 'scm'),
 ]
