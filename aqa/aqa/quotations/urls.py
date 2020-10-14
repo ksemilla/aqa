@@ -8,6 +8,8 @@ from .views import (
 )
 
 app_name = "quotations"
+
+# api/quotations/
 urlpatterns = [
     path("", QuotationListCreateView.as_view()),
     path("<int:quotation_pk>/", QuotationRetrieveUpdateDestroyView.as_view()),

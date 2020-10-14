@@ -23,10 +23,10 @@ class UserListView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    def get(self, request):
-        allowed_scope = ['admin', 'bh']
-        if request.user.scope not in allowed_scope:
-            raise exceptions.PermissionDenied
+    def list(self, request):
+        # allowed_scope = ['admin', 'bh']
+        # if request.user.scope not in allowed_scope:
+        #     raise exceptions.PermissionDenied
         serializer = UserSerializer(User.objects.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -56,12 +56,11 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
     def retrieve(self, request, user_pk):
-        allowed_scope = ['admin']
+        # allowed_scope = ['admin']
+        # if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
+        #     raise exceptions.PermissionDenied
+
         data = copy.deepcopy(request.data)
-
-        if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
-            raise exceptions.PermissionDenied
-
         user = User.objects.filter(pk=user_pk).first()
         if not user:
             return Response({"error": f"User id {user_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
@@ -69,12 +68,11 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
     
     def update(self, request, user_pk):
-        allowed_scope = ['admin']
+        # allowed_scope = ['admin']
+        # if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
+        #     raise exceptions.PermissionDenied
+
         data = copy.deepcopy(request.data)
-
-        if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
-            raise exceptions.PermissionDenied
-
         user = User.objects.filter(pk=user_pk).first()
         if not user:
             return Response({'error': f'User id {user_pk} does not exist'}, status=status.HTTP_400_BAD_REQUEST)
@@ -98,11 +96,11 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
     def destroy(self, request, user_pk):
-        allowed_scope = ['admin']
-        data = copy.deepcopy(request.data)
-        if request.user.scope not in allowed_scope:
-            raise exceptions.PermissionDenied
+        # allowed_scope = ['admin']
+        # if request.user.scope not in allowed_scope:
+        #     raise exceptions.PermissionDenied
 
+        data = copy.deepcopy(request.data)
         user = User.objects.filter(pk=user_pk).first()
         
         if not user:

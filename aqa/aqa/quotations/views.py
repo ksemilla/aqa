@@ -22,25 +22,20 @@ class QuotationListCreateView(ListCreateAPIView):
     allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
 
 
-    def get(self, request):
-        if request.user.scope not in self.allowed_scope:
-            raise exceptions.PermissionDenied
+    def list(self, request):
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
 
-        if request.user.scope == 'ae':
-            serializer = QuotationSerializer(request.user.quotations_as_ae.all(), many=True)
-        elif request.user.scope == 'se':
-            serializer = QuotationSerializer(request.user.quotations_as_se.all(), many=True)
-        elif request.user.scope == 'sl':
-            serializer = QuotationSerializer(request.user.quotations_as_sl.all(), many=True)
-        else:
-            serializer = QuotationSerializer(Quotation.objects.all(), many=True)
+        print(request.query_params)
+        print(243234)
 
+        serializer = QuotationSerializer(Quotation.objects.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     def create(self, request):
-        if request.user.scope not in self.allowed_scope:
-            raise exceptions.PermissionDenied
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
 
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
@@ -82,27 +77,19 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
 
     def retrieve(self, request, quotation_pk):
-        if request.user.scope not in self.allowed_scope:
-            raise exceptions.PermissionDenied
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
 
-        if request.user.scope == 'ae':
-            quotation = request.user.quotations_as_ae.filter(pk=quotation_pk).first()
-        elif request.user.scope == 'se':
-            quotation = request.user.quotations_as_se.filter(pk=quotation_pk).first()
-        elif request.user.scope == 'sl':
-            quotation = request.user.quotations_as_sl.filter(pk=quotation_pk).first()
-        else:
-            quotation = Quotation.objects.filter(pk=quotation_pk).first()
-
+        quotation = Quotation.objects.filter(pk=quotation_pk).first()
         if not quotation:
-            content = {"error": f"Quotation {quotation_pk} does not exist or cannot be accessed"}
+            content = {"error": f"Quotation {quotation_pk} does not exist"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
 
 
     def update(self,request,quotation_pk):
-        if request.user.scope not in self.allowed_scope:
-            raise exceptions.PermissionDenied
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
 
         if request.user.scope == 'ae':
             quotation = request.user.quotations_as_ae.filter(pk=quotation_pk).first()
@@ -169,8 +156,8 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
     def destroy(self, request, quotation_pk):
-        if request.user.scope not in self.allowed_scope:
-            raise exceptions.PermissionDenied
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
 
         if request.user.scope == 'ae':
             quotation = request.user.quotations_as_ae.filter(pk=quotation_pk).first()
@@ -195,8 +182,20 @@ class QuotationItemListCreateView(ListCreateAPIView):
     model = QuotationItem
     queryset = QuotationItem.objects.all()
     serializer_class = QuotationItemSerializer
+    allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
+
+    def list(self, request):
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
+
+        serializer = QuotationItemSerializer(QuotationItem.objects.all(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     def create(self, request):
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
+
         data = copy.deepcopy(request.data)
         serializer = QuotationItemSerializer(data=data)
 
@@ -213,8 +212,12 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     model = QuotationItem
     queryset = QuotationItem.objects.all()
     serializer_class = QuotationItemSerializer
+    allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
 
     def retrieve(self, request, quotation_item_pk):
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
+
         quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
         if not quotation_item:
             content = {"error": f"Quotation item {quotation_item_pk} does not exist"}
@@ -223,11 +226,28 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
     def update(self, request, quotation_item_pk):
-        quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
+
+        if request.user.scope == 'ae':
+            quotation_item = QuotationItem.objects.filter(quotation__application_engr=request.user.id).filter(pk=quotation_item_pk).first()
+        elif request.user.scope == 'se':
+            quotation_item = QuotationItem.objects.filter(quotation__sales_engr=request.user.id).filter(pk=quotation_item_pk).first()
+        elif request.user.scope == 'sl':
+            quotation_item = QuotationItem.objects.filter(quotation__sales_lead=request.user.id).filter(pk=quotation_item_pk).first()
+        else:
+            quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
+        
+        # check if quotation_item is existing or can be accessed
         if not quotation_item:
-            content = {"error": f"Quotation item {quotation_item_pk} does not exist"}
+            content = {"error": f"Quotation item {quotation_item_pk} does not exist or cannot be accessed"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        data = copy.deepcopy(request.data)    
+        data = copy.deepcopy(request.data) 
+        
+        # quotation should NOT be modified
+        if ('quotation' in data) and (data['quotation'] != quotation_item.quotation.id):
+            content = {"error": "Invalid request. Quotation ID cannot be changed"}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
         serializer = QuotationItemSerializer(quotation_item, data=data)
 
         if serializer.is_valid():
@@ -238,9 +258,21 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
     def destroy(self, request, quotation_item_pk):
-        quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
+
+        if request.user.scope == 'ae':
+            quotation_item = QuotationItem.objects.filter(quotation__application_engr=request.user.id).filter(pk=quotation_item_pk).first()
+        elif request.user.scope == 'se':
+            quotation_item = QuotationItem.objects.filter(quotation__sales_engr=request.user.id).filter(pk=quotation_item_pk).first()
+        elif request.user.scope == 'sl':
+            quotation_item = QuotationItem.objects.filter(quotation__sales_lead=request.user.id).filter(pk=quotation_item_pk).first()
+        else:
+            quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
+
+
         if not quotation_item:
-            content = {"error": f"Quotation item {quotation_item_pk} does not exist"}
+            content = {"error": f"Quotation item {quotation_item_pk} does not exist or cannot be accessed"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
         temp_id, temp_quotation_id = quotation_item.id, quotation_item.quotation.id
         quotation_item.delete()

@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework import status, exceptions
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Product
 from .serializers import ProductSerializer
@@ -14,7 +15,7 @@ class ProductListCreateView(ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
-    def get(self, request):
+    def list(self, request):
         # restricted_scope = ['user']
         # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
@@ -50,9 +51,9 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     serializer_class = ProductSerializer
     
     def retrieve(self, request, pk):
-        restricted_scope = ['user']
-        if request.user.scope in restricted_scope:
-            raise exceptions.PermissionDenied
+        # restricted_scope = ['user']
+        # if request.user.scope in restricted_scope:
+        #     raise exceptions.PermissionDenied
 
         product = Product.objects.filter(pk=pk).first()
         if not product:
@@ -61,9 +62,9 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         
     
     def update(self, request, pk):
-        allowed_scope = ['admin', 'scm']
-        if request.user.scope not in allowed_scope:
-            raise exceptions.PermissionDenied
+        # allowed_scope = ['admin', 'scm']
+        # if request.user.scope not in allowed_scope:
+        #     raise exceptions.PermissionDenied
        
         data = copy.deepcopy(request.data)
         product = Product.objects.filter(pk=pk).first()
@@ -86,9 +87,9 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
     def destroy(self, request, pk):
-        allowed_scope = ['admin', 'scm']
-        if request.user.scope not in allowed_scope:
-            raise exceptions.PermissionDenied
+        # allowed_scope = ['admin', 'scm']
+        # if request.user.scope not in allowed_scope:
+        #     raise exceptions.PermissionDenied
 
         product = Product.objects.filter(pk=pk).first()
         if not product:
@@ -97,3 +98,26 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         product.delete()
 
         return Response({"success": f"deleted Product code {temp_id} - {temp_model_name}"})
+
+
+class ProductQueryView(APIView):
+    model = Product
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        # restricted_scope = ['user']
+        # if request.user.scope in restricted_scope:
+        #     raise exceptions.PermissionDenied
+        
+        try:
+            query = request.query_params['query']
+            if query:
+                products = Product.objects.filter(model_name__icontains=query)
+                serializer = ProductSerializer(products, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response([], status=status.HTTP_200_OK)
+    
+        except:
+            return Response([], status=status.HTTP_200_OK)
