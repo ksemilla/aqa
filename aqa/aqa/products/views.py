@@ -101,16 +101,12 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class ProductQueryView(APIView):
-    model = Product
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         # restricted_scope = ['user']
         # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
-        
+
         try:
             query = request.query_params['query']
             if query:
