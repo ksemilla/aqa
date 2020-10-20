@@ -24,7 +24,7 @@ class QuotationSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'company_name', 'created_date', 'author', 'application_engr', 'sales_engr', 
             'sales_lead', 'author_detail', 'items', 'expiry_date', 'subject',
-            'sub_subject', 'project', 'payment_terms', 'location', 'modified_by',
+            'sub_subject', 'project', 'payment_terms', 'location', 'last_modified',
         )
 
 class QuotationItemSerializer(serializers.ModelSerializer):

@@ -26,9 +26,6 @@ class QuotationListCreateView(ListCreateAPIView):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        print(request.query_params)
-        print(243234)
-
         serializer = QuotationSerializer(Quotation.objects.all(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -40,6 +37,7 @@ class QuotationListCreateView(ListCreateAPIView):
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
         data['author'] = user.id
+        data['last_modified'] = None
 
         items_isvalid = [] # values are boolean True or False
         item_serializers = []
@@ -87,10 +85,11 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
 
 
-    def update(self,request,quotation_pk):
+    def update(self, request, quotation_pk):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
+        # retrieve the quotation
         if request.user.scope == 'ae':
             quotation = request.user.quotations_as_ae.filter(pk=quotation_pk).first()
         elif request.user.scope == 'se':
@@ -103,16 +102,20 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         if not quotation:
             content = {"error": f"Quotation {quotation_pk} does not exist or cannot be accessed"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            
+        
+
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
-        data['author'] = user.id # the one who updated will be the new author
+        data['last_modified'] = user.id 
+        data['author'] = quotation.author.id # the author will never change
 
         items_isvalid = [] # values are boolean True or False
         item_serializers = []
+
         updated_ids = set()
         current_ids = set(quotation.quotationitem_set.all().values_list('pk', flat=True))
 
+        # get the serializers and validity of quotation items
         if 'items' in data:
             for item in data['items']:
                 if "id" in item:
@@ -126,7 +129,9 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
                     item_serializer = QuotationItemSerializer(data=item)
                 items_isvalid.append(item_serializer.is_valid())
                 item_serializers.append(item_serializer)
+
         quotation_serializer = QuotationSerializer(quotation, data=data)
+
 
         if all(items_isvalid) and quotation_serializer.is_valid():
             #save the updated and created items and quotations in database

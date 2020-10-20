@@ -20,7 +20,7 @@ class Quotation(models.Model):
     project = models.CharField(max_length=50, null=True)
     payment_terms = models.CharField(max_length=50, default='Full payment before delivery')
     location = models.CharField(max_length=50, default='Metro Manila')
-    modified_by = models.ForeignKey(User, related_name='quotations_modified', on_delete=models.PROTECT, null=True)
+    last_modified = models.ForeignKey(User, related_name='quotations_modified', on_delete=models.PROTECT, null=True)
 
     # explore .save method to polish the fields on subject, sub_subject, project
 
