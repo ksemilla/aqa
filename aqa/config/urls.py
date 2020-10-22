@@ -23,6 +23,7 @@ urlpatterns = [
     path("api/token/", include("aqa.login.urls")),
     path("api/quotations/", include("aqa.quotations.urls")),
     path("api/products/", include("aqa.products.urls")),
+    path("api/customers/", include("aqa.customers.urls")),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

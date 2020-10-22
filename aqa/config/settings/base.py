@@ -79,6 +79,7 @@ LOCAL_APPS = [
     "aqa.users.apps.UsersConfig",
     "aqa.quotations.apps.QuotationsConfig",
     "aqa.products.apps.ProductsConfig",
+    "aqa.customers.apps.CustomersConfig",
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
