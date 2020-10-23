@@ -21,6 +21,8 @@ class Quotation(models.Model):
     payment_terms = models.CharField(max_length=50, default='Full payment before delivery')
     location = models.CharField(max_length=50, default='Metro Manila')
     last_modified = models.ForeignKey(User, related_name='quotations_modified', on_delete=models.PROTECT, null=True)
+    discount = models.IntegerField(default=0)
+    total_price = models.IntegerField(default=0)
 
     # explore .save method to polish the fields on subject, sub_subject, project
 

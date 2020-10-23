@@ -55,10 +55,11 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
 
-        product = Product.objects.filter(pk=pk).first()
-        if not product:
+        try:
+            product = Product.objects.get(pk=pk)
+            return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
+        except Product.DoesNotExist:
             return Response({"error": f"Product code {pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(ProductSerializer(product).data, status=status.HTTP_200_OK)
         
     
     def update(self, request, pk):
@@ -66,11 +67,12 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if request.user.scope not in allowed_scope:
         #     raise exceptions.PermissionDenied
        
-        data = copy.deepcopy(request.data)
-        product = Product.objects.filter(pk=pk).first()
-        if not product:
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
             return Response({"error": f"Product code {pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+        data = copy.deepcopy(request.data)
         serializer = ProductSerializer(product, data=data)
         if serializer.is_valid():
 
@@ -91,9 +93,10 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if request.user.scope not in allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        product = Product.objects.filter(pk=pk).first()
-        if not product:
-            return Response({"error": f"Product code {pk} does not exist"}, status=400)
+        try:
+            product = Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            return Response({"error": f"Product code {pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         temp_id, temp_model_name = product.id, product.model_name
         product.delete()
 

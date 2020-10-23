@@ -78,11 +78,12 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        quotation = Quotation.objects.filter(pk=quotation_pk).first()
-        if not quotation:
+        try:
+            quotation = Quotation.objects.get(pk=quotation_pk)
+            return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
+        except Quotation.DoesNotExist:
             content = {"error": f"Quotation {quotation_pk} does not exist"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
 
 
     def update(self, request, quotation_pk):
@@ -223,12 +224,13 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        quotation_item = QuotationItem.objects.filter(pk=quotation_item_pk).first()
-        if not quotation_item:
+        try:
+            quotation_item = QuotationItem.objects.get(pk=quotation_item_pk)
+            return Response(QuotationItemSerializer(quotation_item).data, status=status.HTTP_200_OK)
+        except QuotationItem.DoesNotExist:
             content = {"error": f"Quotation item {quotation_item_pk} does not exist"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
-        return Response(QuotationItemSerializer(quotation_item).data, status=status.HTTP_200_OK)
-
+            
 
     def update(self, request, quotation_item_pk):
         # if request.user.scope not in self.allowed_scope:
