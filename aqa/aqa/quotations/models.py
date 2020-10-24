@@ -22,13 +22,20 @@ class Quotation(models.Model):
     location = models.CharField(max_length=50, default='Metro Manila')
     last_modified = models.ForeignKey(User, related_name='quotations_modified', on_delete=models.PROTECT, null=True)
     discount = models.IntegerField(default=0)
-    total_price = models.IntegerField(default=0)
 
     # explore .save method to polish the fields on subject, sub_subject, project
+
+    @property
+    def total_price(self):
+        total_price = 0
+        for item in self.quotationitem_set.all():
+            total_price += item.quantity * item.product.sell_price
+        return total_price
 
 
     def __str__(self):
         return f"Quote {self.id} - {self.company_name}"
+
 
 class QuotationItem(models.Model):
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)

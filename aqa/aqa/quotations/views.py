@@ -33,6 +33,7 @@ class QuotationListCreateView(ListCreateAPIView):
 
         data = copy.deepcopy(request.data)
         user = User.objects.get(pk=request.user.id)
+        data['author'] = user.id
 
         items_isvalid = [] # values are boolean True or False
         item_serializers = []
@@ -45,13 +46,10 @@ class QuotationListCreateView(ListCreateAPIView):
                 item_serializers.append(item_serializer)
 
         if all(items_isvalid) and quotation_serializer.is_valid():
-            quotation = quotation_serializer.save(author=user, last_modified=None)
-            total_price = 0
+            quotation = quotation_serializer.save(last_modified=None)
             for item_serializer in item_serializers:
                 quotation_item = item_serializer.save(quotation=quotation)
-                total_price += quotation_item.product.sell_price * quotation_item.quantity
                 quotation_item.save()
-            quotation.total_price = total_price
             quotation.save()
             return Response(QuotationSerializer(quotation).data, status=status.HTTP_200_OK)
         
@@ -114,11 +112,8 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # get the serializers and validity of quotation items
         if 'items' in data:
             for item in data['items']:
+
                 if "id" in item: # if id is in data, this id will be overwritten
-                    # quotation_item = quotation.quotationitem_set.filter(pk=item["id"]).first()
-                    # if not quotation_item:
-                    #     content = {"error": f"Quotation item {item['id']} does not exist in Quotation {quotation.id}"}
-                    #     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                     try:
                         quotation_item = quotation.quotationitem_set.get(pk=item["id"])
                     except QuotationItem.DoesNotExist:
@@ -127,32 +122,23 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
                     item['quotation'] = quotation_pk
                     item_serializer = QuotationItemSerializer(quotation_item, data=item)
                     updated_ids.add(item["id"])
+    
                 else: # if no id is provided, then this is a new quotation_item
                     item['quotation'] = quotation_pk
                     item_serializer = QuotationItemSerializer(data=item)
+    
                 items_isvalid.append(item_serializer.is_valid())
                 item_serializers.append(item_serializer)
         quotation_serializer = QuotationSerializer(quotation, data=data)
 
-        # if all(items_isvalid) and quotation_serializer.is_valid():
-        #     #save the updated and created items and quotations in database
-        #     quotation = quotation_serializer.save()
-        #     quotation.save()
-        #     for item_serializer in item_serializers:
-        #         quotation_item = item_serializer.save()
-        #         quotation_item.quotation = quotation
-        #         quotation_item.save()
 
         if all(items_isvalid) and quotation_serializer.is_valid():
+
             #save the updated and created items and quotations in database
             quotation = quotation_serializer.save(last_modified=user)
-            total_price = 0
             for item_serializer in item_serializers:
                 quotation_item = item_serializer.save()
-                quotation_item.quotation = quotation
-                total_price += quotation_item.product.sell_price * quotation_item.quantity
                 quotation_item.save()
-            quotation.total_price = total_price
             quotation.save()
             
             # delete old items not in new data
@@ -215,8 +201,12 @@ class QuotationItemListCreateView(ListCreateAPIView):
         #     raise exceptions.PermissionDenied
 
         data = copy.deepcopy(request.data)
+        serializer = QuotationItemSerializer(data=data)
 
-        # check if the user has access to the quotation
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # check if the user has access to the data['quotation']
         if request.user.scope == 'ae':
             quotation = request.user.quotations_as_ae.filter(pk=data['quotation']).first()
         elif request.user.scope == 'se':
@@ -227,16 +217,17 @@ class QuotationItemListCreateView(ListCreateAPIView):
             quotation = Quotation.objects.filter(pk=data['quotation']).first()
 
         if not quotation:
-            content = {"error": f"Quotation {quotation_pk} does not exist or cannot be accessed"}
+            content = {"error": f"Quotation {data['quotation']} does not exist or cannot be accessed"}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = QuotationItemSerializer(data=data)
 
         if serializer.is_valid():
             quotation_item = serializer.save()
             quotation_item.save()
-
+            quotation.last_modified = request.user
+            quotation.save()
             return Response(QuotationItemSerializer(quotation_item).data, status=status.HTTP_200_OK)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
@@ -280,10 +271,13 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         
         data = copy.deepcopy(request.data)
         data['quotation'] = quotation_item.quotation.id
+        quotation = quotation_item.quotation
         serializer = QuotationItemSerializer(quotation_item, data=data)
 
         if serializer.is_valid():
             quotation_item_obj = serializer.save()
+            quotation.last_modified = request.user
+            quotation.save()
             quotation_item_obj.save()
             return Response(QuotationItemSerializer(quotation_item_obj).data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
