@@ -31,9 +31,10 @@ class Quotation(models.Model):
         return f"Quote {self.id} - {self.company_name}"
 
 class QuotationItem(models.Model):
-    quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE, blank=True, null=True)
+    quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    description = models.CharField(max_length=200, null=True)
     line_number = models.PositiveIntegerField()
 
     def __str__(self):

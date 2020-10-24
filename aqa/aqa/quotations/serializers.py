@@ -24,12 +24,19 @@ class QuotationSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'company_name', 'created_date', 'author', 'application_engr', 'sales_engr', 
             'sales_lead', 'author_detail', 'items', 'expiry_date', 'subject',
-            'sub_subject', 'project', 'payment_terms', 'location', 'last_modified',
+            'sub_subject', 'project', 'payment_terms', 'location', 'last_modified', 'discount', 'total_price',
         )
 
 class QuotationItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuotationItem
         fields = (
-            'id', 'quotation', 'product', 'quantity', 'line_number',
+            'id', 'quotation', 'product', 'quantity', 'line_number', 'description',
+        )
+
+class CreateQuotationItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuotationItem
+        fields = (
+            'id', 'product', 'quantity', 'line_number', 'description',
         )

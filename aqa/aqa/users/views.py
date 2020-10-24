@@ -60,11 +60,11 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
         #     raise exceptions.PermissionDenied
 
-        data = copy.deepcopy(request.data)
-        user = User.objects.filter(pk=user_pk).first()
-        if not user:
+        try:
+            user = User.objects.get(pk=user_pk)
+            return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
             return Response({"error": f"User id {user_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
 
     
     def update(self, request, user_pk):
@@ -72,11 +72,12 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
         #     raise exceptions.PermissionDenied
 
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            return Response({"error": f"User id {user_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
         data = copy.deepcopy(request.data)
-        user = User.objects.filter(pk=user_pk).first()
-        if not user:
-            return Response({'error': f'User id {user_pk} does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-        
         serializer = UserSerializer(user, data=data)
         if serializer.is_valid():
 
@@ -100,11 +101,11 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         # if request.user.scope not in allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        data = copy.deepcopy(request.data)
-        user = User.objects.filter(pk=user_pk).first()
-        
-        if not user:
-            return Response({'error': f'User id {user_pk} does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            return Response({"error": f"User id {user_pk} does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
         temp_id, temp_username = user.id, user.username
         user.delete()
 
