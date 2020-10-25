@@ -42,7 +42,16 @@ class QuotationItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     description = models.CharField(max_length=200, null=True)
-    line_number = models.PositiveIntegerField()
+    line_number = models.PositiveIntegerField(default=1)
+    lead_time = models.CharField(max_length=100, default="30-45 days")
+    tagging = models.CharField(max_length=50, null=True)
+
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.tagging:  # initial creation
+            self.tagging = f"FCU/ACCU-{self.line_number}"
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
-        return f"Quotation Item {self.product} x {self.quantity} units from Quotation {self.quotation.id}"
+        return f"{self.tagging} {self.product} x {self.quantity} units from Quotation {self.quotation.id}"
