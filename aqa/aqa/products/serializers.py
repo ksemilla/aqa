@@ -1,8 +1,6 @@
 from rest_framework import serializers
 
-from aqa.products.models import (
-    Product,
-)
+from aqa.products.models import Product
 
 class ProductSerializer(serializers.ModelSerializer):
 

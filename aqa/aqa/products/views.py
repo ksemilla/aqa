@@ -100,7 +100,7 @@ class ProductRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         temp_id, temp_model_name = product.id, product.model_name
         product.delete()
 
-        return Response({"success": f"deleted Product code {temp_id} - {temp_model_name}"})
+        return Response({"success": f"deleted Product code {temp_id} - {temp_model_name}"}, status=status.HTTP_200_OK)
 
 
 class ProductQueryView(APIView):

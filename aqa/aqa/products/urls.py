@@ -11,6 +11,6 @@ app_name = "products"
 # api/products/
 urlpatterns = [
     path("", ProductListCreateView.as_view()),
-    path("search/", ProductQueryView.as_view()),
     path("<int:pk>/", ProductRetrieveUpdateDestroyView.as_view()),
+    path("search/", ProductQueryView.as_view()),
 ]
