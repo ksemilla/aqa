@@ -51,6 +51,10 @@ class QuotationItem(models.Model):
     def product_name(self):
         return self.product.model_name
 
+    @property
+    def product_selling(self):
+        return self.product.sell_price
+
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.tagging:  # initial creation

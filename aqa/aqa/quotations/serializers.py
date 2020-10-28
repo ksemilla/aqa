@@ -38,15 +38,17 @@ class QuotationSerializer(serializers.ModelSerializer):
         model = Quotation
         fields = (
             'id', 'company_name', 'created_date', 'author', 'application_engr', 'sales_engr', 
-            'sales_lead', 'author_detail', 'ae_detail', 'se_detail', 'sl_detail', 'items', 'expiry_date', 'subject',
-            'sub_subject', 'project', 'payment_terms', 'location', 'last_modified', 'discount', 'total_price',
+            'sales_lead', 'author_detail', 'ae_detail', 'se_detail', 'sl_detail', 'items', 'expiry_date', 
+            'subject', 'sub_subject', 'project', 'payment_terms', 'location', 'last_modified', 'discount', 
+            'total_price',
         )
 
 class QuotationItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuotationItem
         fields = (
-            'id', 'quotation', 'product', 'quantity', 'line_number', 'description', 'lead_time', 'tagging', 'product_name',
+            'id', 'quotation', 'product', 'quantity', 'line_number', 'description', 'lead_time', 'tagging', 
+            'product_name', 'product_selling',
         )
 
 class CreateQuotationItemSerializer(serializers.ModelSerializer):
@@ -54,4 +56,5 @@ class CreateQuotationItemSerializer(serializers.ModelSerializer):
         model = QuotationItem
         fields = (
             'id', 'product', 'quantity', 'line_number', 'description', 'lead_time', 'tagging', 'product_name',
+            'product_selling',
         )
