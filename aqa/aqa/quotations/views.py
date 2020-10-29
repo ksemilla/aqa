@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from aqa.users.models import User
 from .models import Quotation, QuotationItem
 from .serializers import QuotationSerializer, QuotationItemSerializer, CreateQuotationItemSerializer
+from .pagination import QuotationItemPageNumberPagination, QuotationPageNumberPagination
 
 
 class QuotationListCreateView(ListCreateAPIView):
@@ -17,14 +18,14 @@ class QuotationListCreateView(ListCreateAPIView):
     queryset = Quotation.objects.all()
     serializer_class = QuotationSerializer
     allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
+    pagination_class = QuotationPageNumberPagination
 
 
     def list(self, request):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        serializer = QuotationSerializer(Quotation.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return super().list(request)
 
 
     def create(self, request):
@@ -187,13 +188,14 @@ class QuotationItemListCreateView(ListCreateAPIView):
     queryset = QuotationItem.objects.all()
     serializer_class = QuotationItemSerializer
     allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
+    pagination_class = QuotationItemPageNumberPagination
+
 
     def list(self, request):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        serializer = QuotationItemSerializer(QuotationItem.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return super().list(request)
 
 
     def create(self, request):

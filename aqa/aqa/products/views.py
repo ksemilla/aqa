@@ -9,19 +9,21 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .models import Product
 from .serializers import ProductSerializer
+from .pagination import ProductPageNumberPagination
 
 class ProductListCreateView(ListCreateAPIView):
     model = Product
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    pagination_class = ProductPageNumberPagination
+
 
     def list(self, request):
         # restricted_scope = ['user']
         # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
-        
-        serializer = ProductSerializer(Product.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return super().list(request)
 
 
     def create(self, request):
