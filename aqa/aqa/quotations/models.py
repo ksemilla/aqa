@@ -47,6 +47,15 @@ class QuotationItem(models.Model):
     tagging = models.CharField(max_length=50, null=True)
 
 
+    @property
+    def product_name(self):
+        return self.product.model_name
+
+    @property
+    def product_selling(self):
+        return self.product.sell_price
+
+
     def save(self, *args, **kwargs):
         if not self.pk and not self.tagging:  # initial creation
             self.tagging = f"FCU/ACCU-{self.line_number}"

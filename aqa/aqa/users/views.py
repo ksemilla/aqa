@@ -15,6 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status, exceptions
 
 from .serializers import UserSerializer
+from .pagination import UserPageNumberPagination
 
 User = get_user_model()
 
@@ -22,13 +23,14 @@ class UserListView(ListAPIView):
     model = User
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    pagination_class = UserPageNumberPagination
 
     def list(self, request):
         # allowed_scope = ['admin', 'bh']
         # if request.user.scope not in allowed_scope:
         #     raise exceptions.PermissionDenied
-        serializer = UserSerializer(User.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return super().list(request)
 
 
 class UserCreateView(CreateAPIView):

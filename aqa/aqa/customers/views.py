@@ -9,19 +9,22 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import Customer, Address, ContactPerson
 from .serializers import CustomerSerializer, AddressSerializer, ContactPersonSerializer
+from .pagination import CustomerPageNumberPagination
+
 
 class CustomerListCreateView(ListCreateAPIView):
     model = Customer
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    pagination_class = CustomerPageNumberPagination
 
     def list(self, request):
         # restricted_scope = ['user']
         # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
-        
-        serializer = CustomerSerializer(Customer.objects.all(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return super().list(request)
+
 
     def create(self, request):
         # restricted_scope = ['user', 'scm']
