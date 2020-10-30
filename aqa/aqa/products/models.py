@@ -6,7 +6,7 @@ class Product(models.Model):
     sell_price = models.IntegerField(default=0)
     cost_price = models.IntegerField(default=0)
     stock_qty = models.IntegerField(default=0)
-    capacity = models.CharField(null=True, max_length=20)
+    capacity = models.CharField(max_length=20, null=True, blank=True, default="")
     electrical = models.CharField(max_length=20, default="230V-1Ph-60Hz")
 
     def __str__(self):

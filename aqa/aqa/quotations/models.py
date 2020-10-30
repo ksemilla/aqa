@@ -8,16 +8,16 @@ def quote_duration(duration=30):
     return timezone.now() + timezone.timedelta(days=duration)
 
 class Quotation(models.Model):
-    company_name = models.CharField(null=True, max_length=50)
+    company_name = models.CharField(max_length=50, null=True, blank=True, default="")
     created_date = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(User, related_name='quotations_as_author', on_delete=models.PROTECT)
     application_engr = models.ForeignKey(User, related_name='quotations_as_ae', on_delete=models.PROTECT, null=True)
     sales_engr = models.ForeignKey(User, related_name='quotations_as_se', on_delete=models.PROTECT, null=True)
     sales_lead = models.ForeignKey(User, related_name='quotations_as_sl', on_delete=models.PROTECT, null=True)
     expiry_date = models.DateTimeField(default=quote_duration)
-    subject = models.CharField(max_length=50, null=True)
+    subject = models.CharField(max_length=50, null=True, blank=True, default="")
     sub_subject = models.CharField(max_length=50, default='Supply and Delivery of Air Conditioning Units')
-    project = models.CharField(max_length=50, null=True)
+    project = models.CharField(max_length=50, null=True, blank=True, default="")
     payment_terms = models.CharField(max_length=50, default='Full payment before delivery')
     location = models.CharField(max_length=50, default='Metro Manila')
     last_modified = models.ForeignKey(User, related_name='quotations_modified', on_delete=models.PROTECT, null=True)
@@ -41,20 +41,23 @@ class QuotationItem(models.Model):
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    description = models.CharField(max_length=200, null=True)
+    description = models.CharField(max_length=200, null=True, blank=True, default="")
     line_number = models.PositiveIntegerField(default=1)
     lead_time = models.CharField(max_length=100, default="30-45 days")
-    tagging = models.CharField(max_length=50, null=True)
+    tagging = models.CharField(max_length=50, null=True, blank=True, default="")
 
 
     @property
-    def product_name(self):
+    def model_name(self):
         return self.product.model_name
 
     @property
-    def product_selling(self):
+    def sell_price(self):
         return self.product.sell_price
 
+    @property
+    def capacity(self):
+        return self.product.capacity
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.tagging:  # initial creation

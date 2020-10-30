@@ -10,7 +10,7 @@ class Customer(models.Model):
 class ContactPerson(models.Model):
     name = models.CharField(max_length=50)
     title = models.CharField(max_length=10, default="Mr./Ms.")
-    position = models.CharField(max_length=50, null=True)
+    position = models.CharField(max_length=50, null=True, blank=True, default="")
     customer = models.ForeignKey(Customer, related_name="contact_persons", on_delete=models.CASCADE)
 
     def __str__(self):
