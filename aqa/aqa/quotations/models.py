@@ -32,6 +32,13 @@ class Quotation(models.Model):
             total_price += item.quantity * item.product.sell_price
         return total_price
 
+    @property
+    def total_cost(self):
+        total_cost = 0
+        for item in self.quotationitem_set.all():
+            total_cost += item.quantity * item.product.cost_price
+        return total_cost
+
 
     def __str__(self):
         return f"Quote {self.id} - {self.company_name}"
@@ -58,6 +65,10 @@ class QuotationItem(models.Model):
     @property
     def capacity(self):
         return self.product.capacity
+
+    @property
+    def cost_price(self):
+        return self.product.cost_price
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.tagging:  # initial creation
