@@ -26,8 +26,8 @@ class UserListView(ListAPIView):
     pagination_class = UserPageNumberPagination
 
     def list(self, request):
-        # allowed_scope = ['admin', 'bh']
-        # if request.user.scope not in allowed_scope:
+        # restricted_scope = ['user']
+        # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
 
         return super().list(request)
@@ -58,8 +58,8 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
     def retrieve(self, request, user_pk):
-        # allowed_scope = ['admin']
-        # if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
+        # restricted_scope = ['user']
+        # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
 
         try:
@@ -111,7 +111,29 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         temp_id, temp_username = user.id, user.username
         user.delete()
 
-        return Response({"success": f"deleted user {temp_id} - {temp_username}"})
+        return Response({"success": f"deleted user {temp_id} - {temp_username}"}, status=status.HTTP_200_OK)
+
+
+class RoleListView(ListAPIView):
+    model = User
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def list(self, request):
+        # restricted_scope = ['user']
+        # if request.user.scope in restricted_scope:
+        #     raise exceptions.PermissionDenied
+
+        role_list = {}
+        ae_list = UserSerializer(User.objects.filter(scope='ae'), many=True).data
+        se_list = UserSerializer(User.objects.filter(scope='se'), many=True).data
+        sl_list = UserSerializer(User.objects.filter(scope='sl'), many=True).data
+        role_list['ae'] = list(ae_list)
+        role_list['se'] = list(se_list)
+        role_list['sl'] = list(sl_list)
+
+        return Response(role_list, status=status.HTTP_200_OK)
+
 
 # class UserDetailView(LoginRequiredMixin, DetailView):
 
