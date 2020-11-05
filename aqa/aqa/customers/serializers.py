@@ -23,11 +23,11 @@ class ContactPersonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ContactPerson
-        fields = ('name', 'title', 'position',)
+        fields = ('name', 'title', 'position', 'customer', 'company',)
 
 
 class AddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Address
-        fields = ('customer', 'location',)
+        fields = ('customer', 'location', 'company',)

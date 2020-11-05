@@ -16,6 +16,10 @@ class ContactPerson(models.Model):
     def __str__(self):
         return f"{self.title} {self.name}"
 
+    @property
+    def company(self):
+        return self.customer.company
+
 
 class Address(models.Model):
     location = models.CharField(max_length=100)
@@ -23,3 +27,7 @@ class Address(models.Model):
 
     def __str__(self):
         return self.location
+
+    @property
+    def company(self):
+        return self.customer.company
