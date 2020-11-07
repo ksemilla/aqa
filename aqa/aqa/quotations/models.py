@@ -3,8 +3,9 @@ from django.utils import timezone
 from aqa.users.models import User
 
 from aqa.products.models import Product
+from .const import QuotationDays
 
-def quote_duration(duration=30):
+def quote_duration(duration=QuotationDays.QUOTE_DURATION):
     return timezone.now() + timezone.timedelta(days=duration)
 
 class Quotation(models.Model):

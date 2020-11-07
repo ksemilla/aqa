@@ -1,6 +1,8 @@
 import copy
 import json
 
+from django.utils import timezone
+
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
@@ -11,6 +13,7 @@ from aqa.users.models import User
 from .models import Quotation, QuotationItem
 from .serializers import QuotationSerializer, QuotationItemSerializer, CreateQuotationItemSerializer
 from .pagination import QuotationItemPageNumberPagination, QuotationPageNumberPagination
+from .const import QuotationDays
 
 
 class QuotationListCreateView(ListCreateAPIView):
@@ -180,6 +183,24 @@ class QuotationRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         temp_id = quotation.id
         quotation.delete()
         return Response({"success": f"Deleted Quotation {temp_id}"})
+
+
+
+class QuotationReminderView(ListAPIView):
+    model = Quotation
+    queryset = Quotation.objects.exclude(
+        expiry_date__lte=timezone.now()
+    ).filter(
+        expiry_date__lte=timezone.now()+timezone.timedelta(days=QuotationDays.QUOTE_REMINDER))
+    serializer_class = QuotationSerializer
+    pagination_class = QuotationPageNumberPagination
+    allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
+    
+    def list(self, request):
+        # if request.user not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
+
+        return super().list(request)
 
 
 
