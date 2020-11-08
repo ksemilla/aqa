@@ -39,8 +39,8 @@ class QuotationSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'company_name', 'created_date', 'author', 'application_engr', 'sales_engr', 
             'sales_lead', 'author_detail', 'ae_detail', 'se_detail', 'sl_detail', 'items', 'expiry_date', 
-            'subject', 'sub_subject', 'project', 'payment_terms', 'location', 'last_modified', 'discount', 
-            'total_price', 'total_cost',
+            'subject', 'sub_subject', 'project', 'payment_terms', 'location', 'last_modified', 'discount_rate', 
+            'discount_amount', 'total_price', 'total_cost',
         )
 
 class QuotationItemSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class QuotationItemSerializer(serializers.ModelSerializer):
         model = QuotationItem
         fields = (
             'id', 'quotation', 'product', 'quantity', 'line_number', 'description', 'lead_time', 'tagging', 
-            'model_name', 'sell_price', 'capacity', 'cost_price',
+            'model_name', 'sell_price', 'capacity', 'cost_price', 'h_desc',
         )
 
 class CreateQuotationItemSerializer(serializers.ModelSerializer):
@@ -56,5 +56,5 @@ class CreateQuotationItemSerializer(serializers.ModelSerializer):
         model = QuotationItem
         fields = (
             'id', 'product', 'quantity', 'line_number', 'description', 'lead_time', 'tagging', 'model_name',
-            'sell_price', 'capacity', 'cost_price',
+            'sell_price', 'capacity', 'cost_price', 'h_desc',
         )
