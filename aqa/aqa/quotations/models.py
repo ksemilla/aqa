@@ -53,6 +53,7 @@ class QuotationItem(models.Model):
     line_number = models.PositiveIntegerField(default=1)
     lead_time = models.CharField(max_length=100, default="30-45 days")
     tagging = models.CharField(max_length=50, null=True, blank=True, default="")
+    h_desc = models.PositiveIntegerField(default=1)
 
 
     @property
