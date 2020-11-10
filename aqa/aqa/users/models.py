@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField
+from django.db.models import CharField, BooleanField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -14,6 +14,7 @@ class User(AbstractUser):
     first_name = CharField(max_length=50)
     last_name = CharField(max_length=50)
 
+    is_active = BooleanField(default=True)
 
     @property
     def fullname(self):
