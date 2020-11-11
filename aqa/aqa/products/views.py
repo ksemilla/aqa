@@ -30,7 +30,8 @@ class ProductListCreateView(ListCreateAPIView):
         # allowed_scope = ['admin', 'scm']
         # if request.user.scope not in allowed_scope:
         #     raise exceptions.PermissionDenied
-       
+        
+        
         data = copy.deepcopy(request.data)
         serializer = ProductSerializer(data=data)
         if serializer.is_valid():
