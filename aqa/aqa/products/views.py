@@ -18,12 +18,12 @@ class ProductListCreateView(ListCreateAPIView):
     pagination_class = ProductPageNumberPagination
 
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         # restricted_scope = ['user']
         # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
 
-        return super().list(request)
+        return super().list(request, *args, **kwargs)
 
 
     def create(self, request):

@@ -25,12 +25,12 @@ class UserListView(ListAPIView):
     serializer_class = UserSerializer
     pagination_class = UserPageNumberPagination
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         # restricted_scope = ['user']
         # if request.user.scope in restricted_scope:
         #     raise exceptions.PermissionDenied
 
-        return super().list(request)
+        return super().list(request, *args, **kwargs)
 
 
 class UserCreateView(CreateAPIView):

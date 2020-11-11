@@ -24,11 +24,11 @@ class QuotationListCreateView(ListCreateAPIView):
     pagination_class = QuotationPageNumberPagination
 
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        return super().list(request)
+        return super().list(request, *args, **kwargs)
 
 
     def create(self, request):
@@ -196,11 +196,11 @@ class QuotationReminderView(ListAPIView):
     pagination_class = QuotationPageNumberPagination
     allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
     
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         # if request.user not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        return super().list(request)
+        return super().list(request, *args, **kwargs)
 
 
 
@@ -212,11 +212,11 @@ class QuotationItemListCreateView(ListCreateAPIView):
     pagination_class = QuotationItemPageNumberPagination
 
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         # if request.user.scope not in self.allowed_scope:
         #     raise exceptions.PermissionDenied
 
-        return super().list(request)
+        return super().list(request, *args, **kwargs)
 
 
     def create(self, request):
