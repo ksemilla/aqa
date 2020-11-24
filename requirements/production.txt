@@ -9,8 +9,3 @@ psycopg2==2.8.5 --no-binary psycopg2  # https://github.com/psycopg/psycopg2
 # ------------------------------------------------------------------------------
 django-storages[boto3]==1.9.1  # https://github.com/jschneier/django-storages
 django-anymail[mailgun]==7.2.1  # https://github.com/anymail/django-anymail
-
-django-cors-headers==3.5.0
-djangorestframework==3.12.2
-djangorestframework-simplejwt==4.6.0
-jwt==1.1.0
