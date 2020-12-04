@@ -293,5 +293,6 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:9000"
+    "http://127.0.0.1:9000",
+    "http://aqas3-bucket.s3-website-ap-southeast-1.amazonaws.com"
 ]
