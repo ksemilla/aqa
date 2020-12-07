@@ -12,6 +12,8 @@ from .serializers import CustomTokenObtainPairSerializer, CustomVerifyTokenSeria
 from aqa.users.models import User
 from aqa.users.serializers import UserSerializer
 
+from config import settings
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     # Replace the serializer with your custom
     serializer_class = CustomTokenObtainPairSerializer
@@ -24,7 +26,8 @@ class CustomVerifyTokenView(TokenVerifyView):
         try:
             serializer.is_valid(raise_exception=True)
             data = copy.deepcopy(request.data)
-            decoded = jwt.decode(data['token'], settings.local.SECRET_KEY)
+            # decoded = jwt.decode(data['token'], settings.local.SECRET_KEY)
+            decoded = jwt.decode(data['token'], settings.base.env("DJANGO_SECRET_KEY",default="0CJDk88guy1526L2hB2sWZLybNOw6cX6DB0loSGb2gyfTEaTAoMFeaNFaN6wEreZ",))
             user = User.objects.get(id=decoded['user_id'])
         except TokenError as e:
             raise InvalidToken(e.args[0])
