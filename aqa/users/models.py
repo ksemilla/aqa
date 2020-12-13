@@ -13,7 +13,6 @@ class User(AbstractUser):
     scope = CharField(max_length=16, default=UserScopes.USER, choices=USER_SCOPE_OPTIONS)
     first_name = CharField(max_length=50)
     last_name = CharField(max_length=50)
-
     is_active = BooleanField(default=True)
 
     @property

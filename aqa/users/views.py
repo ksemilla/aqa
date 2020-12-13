@@ -9,12 +9,19 @@ import copy
 import json
 
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, UpdateAPIView, CreateAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import (
+    ListAPIView, 
+    UpdateAPIView, 
+    CreateAPIView, 
+    ListCreateAPIView, 
+    RetrieveUpdateDestroyAPIView
+    )
+    
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, exceptions
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, CreateUserSerializer
 from .pagination import UserPageNumberPagination
 
 User = get_user_model()
@@ -36,15 +43,18 @@ class UserListView(ListAPIView):
 class UserCreateView(CreateAPIView):
     model = User
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
+    serializer_class = CreateUserSerializer
 
     def create(self, request):
+        # allowed_scope = ['admin']
+        # if (request.user.scope not in allowed_scope) and (request.user.id != user_pk):
+        #     raise exceptions.PermissionDenied
+
         data = copy.deepcopy(request.data)
         serializer = UserSerializer(data=data)
 
         if serializer.is_valid():                
-            new_user = serializer.save()
+            new_user = serializer.save(scope='user')
             new_user.set_password(data["password"])
             new_user.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
