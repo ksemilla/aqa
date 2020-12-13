@@ -6,6 +6,7 @@ from .views import (
     QuotationReminderView,
     QuotationItemListCreateView,
     QuotationItemRetrieveUpdateDestroyView,
+    QuotationExclusionView,
 )
 
 app_name = "quotations"
@@ -16,5 +17,6 @@ urlpatterns = [
     path("<int:quotation_pk>/", QuotationRetrieveUpdateDestroyView.as_view()),
     path('reminder/', QuotationReminderView.as_view()),
     path("items/", QuotationItemListCreateView.as_view()),
-    path("items/<int:quotation_item_pk>/", QuotationItemRetrieveUpdateDestroyView.as_view()),   
+    path("items/<int:quotation_item_pk>/", QuotationItemRetrieveUpdateDestroyView.as_view()),
+    path("exclusions/", QuotationExclusionView.as_view()),
 ]

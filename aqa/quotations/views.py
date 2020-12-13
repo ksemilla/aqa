@@ -327,3 +327,21 @@ class QuotationItemRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
         quotation_item.delete()
 
         return Response({"success": f"deleted quotation item {temp_id} - from quotation {temp_quotation_id}"})
+
+
+
+class QuotationExclusionView(ListAPIView):
+    allowed_scope = ['ae', 'se', 'sl', 'bh', 'admin',]
+
+    def list(self, request, *args, **kwargs):
+        # if request.user.scope not in self.allowed_scope:
+        #     raise exceptions.PermissionDenied
+
+        exclusions = [
+            'Unloading, hauling, and rigging of the equipment',
+            'Any related installation works and materials',
+            'Government permits, licenses, bonds, and insurance',
+            'Piping and electrical works',
+            'Any item not clearly mentioned in the inclusions'
+        ]
+        return Response({'success':exclusions}, status=status.HTTP_200_OK)
